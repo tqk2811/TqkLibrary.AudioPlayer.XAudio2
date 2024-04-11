@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net462;net6.0-windows7.0;net8.0-windows7.0</TargetFrameworks>
+		<LangVersion>11.0</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\TqkLibrary.AudioPlayer.XAudio2\TqkLibrary.AudioPlayer.XAudio2.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,13 +1,36 @@
-// pch.h: This is a precompiled header file.
-// Files listed below are compiled only once, improving build performance for future builds.
-// This also affects IntelliSense performance, including code completion and many code browsing features.
-// However, files listed here are ALL re-compiled if any one of them is updated between builds.
-// Do not add files here that you will be updating frequently as this negates the performance advantage.
-
 #ifndef PCH_H
 #define PCH_H
 
-// add headers that you want to pre-compile here
-#include "framework.h"
+#ifdef TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVE_EXPORTS
+#define TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS extern "C" __declspec( dllexport )
+#else
+#define TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS extern "C" __declspec( dllimport )
+#endif
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <assert.h>
+#include <wrl/client.h>
+#include <xaudio2.h>
+#include <xaudio2fx.h>
+#include "libav.h"
+using namespace Microsoft::WRL;
+
+typedef class XAudio2Player XAudio2Player;
+typedef class XAudio2Voice XAudio2Voice;
+typedef class XAudio2VoiceCallback XAudio2VoiceCallback;
+typedef class SwrConvert SwrConvert;
+
+#include "XAudio2Player.h"
+#include "XAudio2Voice.h"
+#include "XAudio2VoiceCallback.h"
+#include "SwrConvert.h"
+
+#if _DEBUG
+#include "DebugAudioSource.h"
+#endif
+
+#include "Exports.h"
+
 
 #endif //PCH_H
