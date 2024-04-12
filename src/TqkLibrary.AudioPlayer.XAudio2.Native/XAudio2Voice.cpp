@@ -22,16 +22,13 @@ XAudio2Voice::~XAudio2Voice() {
 		delete this->_swrConvert;
 		this->_swrConvert = nullptr;
 	}
-	if (this->_tmpFrame) {
-		av_frame_free(&this->_tmpFrame);
-	}
 }
 
 
 BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 	if (!pFrame)
 		return FALSE;
-	if (this->_sourceVoice || this->_masterVoice || this->_tmpFrame)
+	if (this->_sourceVoice || this->_masterVoice)
 		return TRUE;
 
 	WAVEFORMATEX sourceFormat;
@@ -59,6 +56,7 @@ BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 		break;
 
 	case AVSampleFormat::AV_SAMPLE_FMT_DBL:
+	case AVSampleFormat::AV_SAMPLE_FMT_S64:
 		sourceFormat.wBitsPerSample = 64;
 		sourceFormat.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
 		break;
@@ -88,7 +86,6 @@ BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 			sourceFormat.wFormatTag = WAVE_FORMAT_IEEE_FLOAT;
 			break;
 		case AVSampleFormat::AV_SAMPLE_FMT_DBLP:
-		case AVSampleFormat::AV_SAMPLE_FMT_S64:
 		case AVSampleFormat::AV_SAMPLE_FMT_S64P:
 			_outFormat = AVSampleFormat::AV_SAMPLE_FMT_DBL;
 			sourceFormat.wBitsPerSample = 64;
@@ -99,16 +96,20 @@ BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 			return FALSE;
 		}
 
+		AVChannelLayout outChlayout;
+		outChlayout.nb_channels = pFrame->ch_layout.nb_channels;
+		outChlayout.order = pFrame->ch_layout.order;
+		if (pFrame->ch_layout.order == AV_CHANNEL_ORDER_NATIVE)
+			outChlayout.u.mask = pFrame->ch_layout.u.mask;
+
 		this->_swrConvert = new SwrConvert();
 		if (!this->_swrConvert->Init(
-			(AVChannelLayout*)&pFrame->ch_layout, _outFormat, pFrame->sample_rate,
+			(AVChannelLayout*)&outChlayout, _outFormat, pFrame->sample_rate,
 			(AVChannelLayout*)&pFrame->ch_layout, (AVSampleFormat)pFrame->format, pFrame->sample_rate
 		))
 		{
 			return FALSE;
 		}
-		this->_tmpFrame = av_frame_alloc();
-		assert(this->_tmpFrame);
 	}
 	}
 
@@ -137,7 +138,7 @@ BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 	sends.SendCount = 1;
 	sends.pSends = &send_descriptor;
 
-	hr = this->_xaudio2.Get()->CreateSourceVoice(
+	hr = this->_xaudio2->CreateSourceVoice(
 		&_sourceVoice,
 		(WAVEFORMATEX*)&sourceFormat,
 		flag,
@@ -156,63 +157,84 @@ BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 	return SUCCEEDED(hr);
 }
 
-BOOL XAudio2Voice::PlayFrame(const AVFrame* pFrame) {
-	if (!pFrame)
-		return FALSE;
+BOOL XAudio2Voice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 	if (!_sourceVoice)
 		return FALSE;
 
 	HRESULT hr;
-
+	AVFrame* newFrame{ nullptr };
 	XAUDIO2_BUFFER buffer{ 0 };
-	buffer.Flags = 0;//or XAUDIO2_END_OF_STREAM
-	if (this->_swrConvert)
+	if (isEof)
 	{
-		av_frame_unref(this->_tmpFrame);
-		this->_tmpFrame->ch_layout = pFrame->ch_layout;
-		this->_tmpFrame->format = this->_outFormat;
-		this->_tmpFrame->sample_rate = pFrame->sample_rate;
-		if (this->_swrConvert->Convert(pFrame, this->_tmpFrame))
-		{
-			//buffer.AudioBytes = this->_tmpFrame->linesize[0];
-			buffer.AudioBytes = min(this->_tmpFrame->linesize[0], pFrame->linesize[0]);
-			//buffer.AudioBytes = this->_tmpFrame->nb_samples * this->_tmpFrame->ch_layout.nb_channels * 32 / 8;
-			buffer.pAudioData = this->_tmpFrame->data[0];
-		}
-		else {
-			return FALSE;
-		}
+		buffer.Flags = XAUDIO2_END_OF_STREAM;//or 
 	}
 	else
 	{
-		buffer.AudioBytes = pFrame->linesize[0];
-		buffer.pAudioData = pFrame->data[0];
+		buffer.Flags = 0;
+		if (!pFrame)
+			return FALSE;
+
+		AVFrame* newFrame = av_frame_alloc();
+		buffer.pContext = newFrame;
+		if (this->_swrConvert)
+		{
+			newFrame->ch_layout.nb_channels = pFrame->ch_layout.nb_channels;
+			newFrame->ch_layout.order = pFrame->ch_layout.order;
+			newFrame->ch_layout.opaque = nullptr;
+			if (pFrame->ch_layout.order == AV_CHANNEL_ORDER_NATIVE)
+				newFrame->ch_layout.u.mask = pFrame->ch_layout.u.mask;
+			newFrame->format = this->_outFormat;
+			newFrame->sample_rate = pFrame->sample_rate;
+			if (this->_swrConvert->Convert(pFrame, newFrame))
+			{
+				buffer.AudioBytes = av_samples_get_buffer_size(
+					newFrame->linesize,
+					newFrame->ch_layout.nb_channels,
+					newFrame->nb_samples,
+					(AVSampleFormat)newFrame->format,
+					0
+				);
+				buffer.pAudioData = newFrame->data[0];
+			}
+			else {
+				av_frame_free(&newFrame);
+				return FALSE;
+			}
+		}
+		else
+		{
+			av_frame_copy_props(newFrame, pFrame);
+			av_frame_ref(newFrame, pFrame);
+			buffer.AudioBytes = av_samples_get_buffer_size(
+				newFrame->linesize,
+				newFrame->ch_layout.nb_channels,
+				newFrame->nb_samples,
+				(AVSampleFormat)newFrame->format,
+				0
+			);
+			buffer.pAudioData = newFrame->data[0];
+		}
 	}
-
-
-	this->_callback->Reset();
 	do
 	{
 		hr = _sourceVoice->SubmitSourceBuffer(&buffer, nullptr);
 		if (FAILED(hr))
 		{
-			if (hr == XAUDIO2_E_INVALID_CALL)
+			if (hr == XAUDIO2_E_INVALID_CALL && buffer.Flags != XAUDIO2_END_OF_STREAM)
 			{
-				Sleep(10);
+				Sleep(1);
 			}
-			else return FALSE;
-		}
-		if (this->_callback->WaitReadEnd(INFINITE))
-		{
-			//wait success
-			break;
+			else
+			{
+				/*if (tmpBuff)
+				{
+					delete[] tmpBuff;
+					tmpBuff = nullptr;
+				}*/
+				av_frame_free(&newFrame);
+				return FALSE;
+			}
 		}
 	} while (hr == XAUDIO2_E_INVALID_CALL);
-#if _DEBUG
-	if (FAILED(hr))
-	{
-		return SUCCEEDED(hr);
-	}
-#endif
 	return SUCCEEDED(hr);
 }

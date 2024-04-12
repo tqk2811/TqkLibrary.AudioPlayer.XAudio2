@@ -25,12 +25,16 @@ void XAudio2VoiceCallback::OnBufferStart(void* pBufferContext) {
 }
 void XAudio2VoiceCallback::OnBufferEnd(void* pBufferContext) {
 	SetEvent(this->_waitHandle);
+	AVFrame* frame = (AVFrame*)pBufferContext;
+	av_frame_free(&frame);
 }
 void XAudio2VoiceCallback::OnLoopEnd(void* pBufferContext) {
-	//SetEvent(this->_waitHandle);
+
 }
 void XAudio2VoiceCallback::OnVoiceError(void* pBufferContext, HRESULT Error) {
 	SetEvent(this->_waitHandle);
+	AVFrame* frame = (AVFrame*)pBufferContext;
+	av_frame_free(&frame);
 }
 
 BOOL XAudio2VoiceCallback::WaitReadEnd(DWORD timeout) {

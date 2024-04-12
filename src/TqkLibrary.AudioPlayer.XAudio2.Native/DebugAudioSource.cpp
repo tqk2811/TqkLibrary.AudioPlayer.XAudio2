@@ -44,9 +44,9 @@ BOOL DebugAudioSource::Init(LPSTR filePath) {
 	input_audio_stream = pInputFormatContext->streams[audioIndex];
 	const AVCodec* audio_codec = avcodec_find_decoder(input_audio_stream->codecpar->codec_id);
 	pCodecContext = avcodec_alloc_context3(audio_codec);
-	//this->pCodecContext->flags |= AV_CODEC_FLAG_LOW_DELAY;
+	this->pCodecContext->flags |= AV_CODEC_FLAG_LOW_DELAY;
 	this->pCodecContext->ch_layout.nb_channels = 2;
-	this->pCodecContext->sample_rate = 48000;
+	this->pCodecContext->sample_rate = 44100;
 	err = avcodec_open2(this->pCodecContext, audio_codec, nullptr);
 	if (err)
 		return FALSE;
@@ -64,8 +64,8 @@ BOOL DebugAudioSource::ReadFrame(AVFrame* pframe) {
 		if (err == AVERROR_EOF)
 			return FALSE;
 
-		if (pkt.pts == AV_NOPTS_VALUE)
-			continue;
+		//if (pkt.pts == AV_NOPTS_VALUE)
+		//	continue;
 
 		if (pkt.stream_index == audioIndex)
 		{

@@ -7,14 +7,13 @@ public:
 	~XAudio2Voice();
 
 	BOOL Init(const AVFrame* pFrame);
-	BOOL PlayFrame(const AVFrame* pFrame);
+	BOOL QueueFrame(const AVFrame* pFrame, BOOL isEof = FALSE);
 private:
 	ComPtr<IXAudio2> _xaudio2{ nullptr };
 	IXAudio2MasteringVoice* _masterVoice{ nullptr };
 	IXAudio2SourceVoice* _sourceVoice{ nullptr };
 	XAudio2VoiceCallback* _callback{ nullptr };
 	SwrConvert* _swrConvert{ nullptr };
-	AVFrame* _tmpFrame{ nullptr };
 	AVSampleFormat _outFormat{ AV_SAMPLE_FMT_NONE };
 };
 #endif

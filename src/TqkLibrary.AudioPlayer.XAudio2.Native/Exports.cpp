@@ -55,7 +55,7 @@ void XAudio2Voice_Free(XAudio2Voice** ppxAudio2Player) {
 BOOL XAudio2Voice_QueueFrame(XAudio2Voice* pXAudio2Voice, const AVFrame* pFrame) {
 	if (pXAudio2Voice && pFrame)
 	{
-		return pXAudio2Voice->PlayFrame(pFrame);
+		return pXAudio2Voice->QueueFrame(pFrame);
 	}
 	return FALSE;
 }
@@ -63,10 +63,12 @@ BOOL XAudio2Voice_QueueFrame(XAudio2Voice* pXAudio2Voice, const AVFrame* pFrame)
 #if _DEBUG
 void Test() {
 	DebugAudioSource* dbgAudio = new DebugAudioSource();
-	if (dbgAudio->Init((LPSTR)"D:\\test.mp4"))//D:\\Otaku\\Anime\\Hana to Alice- Satsujin Jiken Full.mp4
+	if (dbgAudio->Init((LPSTR)"D:\\01 Rainbow.mp3"))//D:\\Otaku\\Anime\\Hana to Alice- Satsujin Jiken Full.mp4
 	{
 		XAudio2Player* player = new XAudio2Player();
 		if (!player->Init()) {
+			delete player;
+			delete dbgAudio;
 			return;
 		}
 		XAudio2Voice* voice = new XAudio2Voice(player->GetInterface());
@@ -77,12 +79,13 @@ void Test() {
 			bool r = voice->Init(pframe);
 
 			if (r)
-				r = voice->PlayFrame(pframe);
+				r = voice->QueueFrame(pframe);
 
 			if (!r)
 				break;
 		}
 		av_frame_free(&pframe);
+		voice->QueueFrame(nullptr, true);
 		delete voice;
 		delete player;
 	}

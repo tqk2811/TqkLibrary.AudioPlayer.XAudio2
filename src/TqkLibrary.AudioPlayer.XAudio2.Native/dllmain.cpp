@@ -10,6 +10,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
         CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+#if _DEBUG
+        av_log_set_level(AV_LOG_DEBUG);
+#endif
         break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
