@@ -222,7 +222,7 @@ BOOL XAudio2Voice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 		{
 			if (hr == XAUDIO2_E_INVALID_CALL && buffer.Flags != XAUDIO2_END_OF_STREAM)
 			{
-				Sleep(1);
+				Sleep(100);
 			}
 			else
 			{
