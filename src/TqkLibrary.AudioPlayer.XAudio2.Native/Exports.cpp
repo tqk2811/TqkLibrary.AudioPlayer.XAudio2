@@ -63,7 +63,7 @@ BOOL XAudio2Voice_QueueFrame(XAudio2Voice* pXAudio2Voice, const AVFrame* pFrame)
 #if _DEBUG
 void Test() {
 	DebugAudioSource* dbgAudio = new DebugAudioSource();
-	if (dbgAudio->Init((LPSTR)"D:\\01 Rainbow.mp3"))//D:\\Otaku\\Anime\\Hana to Alice- Satsujin Jiken Full.mp4
+	if (dbgAudio->Init((LPSTR)".\\01 Rainbow.mp3"))
 	{
 		XAudio2Player* player = new XAudio2Player();
 		if (!player->Init()) {
