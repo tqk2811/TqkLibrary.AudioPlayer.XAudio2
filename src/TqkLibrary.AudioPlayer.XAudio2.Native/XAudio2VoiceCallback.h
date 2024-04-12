@@ -13,11 +13,6 @@ public:
 	void STDMETHODCALLTYPE OnBufferEnd(void* pBufferContext);
 	void STDMETHODCALLTYPE OnLoopEnd(void* pBufferContext);
 	void STDMETHODCALLTYPE OnVoiceError(void* pBufferContext, HRESULT Error);
-
-	BOOL WaitReadEnd(DWORD timeout);
-	void Reset();
-
 private:
-	HANDLE _waitHandle{ NULL };
 };
 #endif
