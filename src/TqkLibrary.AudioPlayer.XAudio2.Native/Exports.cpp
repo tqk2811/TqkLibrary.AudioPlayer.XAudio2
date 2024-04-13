@@ -151,10 +151,10 @@ VOID XAudio2SourceVoice_GetChannelVolumes(XAudio2SourceVoice* pSourceVoice, UINT
 		return;
 	pSourceVoice->GetChannelVolumes(channels, pVolume);
 }
-BOOL XAudio2SourceVoice_QueueFrame(XAudio2SourceVoice* pSourceVoice, const AVFrame* pFrame, BOOL isEof) {
+XAudio2SourceQueueResult XAudio2SourceVoice_QueueFrame(XAudio2SourceVoice* pSourceVoice, const AVFrame* pFrame, BOOL isEof) {
 	SetLastError(0);
 	if (!pSourceVoice)
-		return FALSE;
+		return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 
 	return pSourceVoice->QueueFrame(pFrame, isEof);
 }

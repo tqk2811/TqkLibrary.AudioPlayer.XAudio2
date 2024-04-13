@@ -202,10 +202,10 @@ VOID XAudio2SourceVoice::GetChannelVolumes(UINT32 channels, FLOAT* pVolume) {
 }
 
 
-BOOL XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
+XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 	SetLastError(0);
 	if (!_sourceVoice)
-		return FALSE;
+		return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 
 	HRESULT hr;
 	AVFrame* newFrame{ nullptr };
@@ -218,7 +218,7 @@ BOOL XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 	{
 		buffer.Flags = 0;
 		if (!pFrame)
-			return FALSE;
+			return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 
 		AVFrame* newFrame = av_frame_alloc();
 		buffer.pContext = newFrame;
@@ -244,7 +244,7 @@ BOOL XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 			}
 			else {
 				av_frame_free(&newFrame);
-				return FALSE;
+				return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 			}
 		}
 		else
@@ -261,24 +261,31 @@ BOOL XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 			buffer.pAudioData = newFrame->data[0];
 		}
 	}
-	do
+
+	hr = _sourceVoice->SubmitSourceBuffer(&buffer, nullptr);
+	if (FAILED(hr))
 	{
-		hr = _sourceVoice->SubmitSourceBuffer(&buffer, nullptr);
-		if (FAILED(hr))
+		av_frame_free(&newFrame);
+		SetLastError(hr);
+		if (hr == XAUDIO2_E_INVALID_CALL)
 		{
-			if (hr == XAUDIO2_E_INVALID_CALL && buffer.Flags != XAUDIO2_END_OF_STREAM)
+			XAUDIO2_VOICE_STATE state{ 0 };
+			_sourceVoice->GetState(&state, XAUDIO2_VOICE_NOSAMPLESPLAYED);
+			if (state.BuffersQueued > 0)
 			{
-				Sleep(100);
+				return  XAudio2SourceQueueResult::XAudio2SourceQueue_QueueFull;
 			}
 			else
 			{
-				av_frame_free(&newFrame);
-				SetLastError(hr);
-				return FALSE;
+				return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 			}
 		}
-	} while (hr == XAUDIO2_E_INVALID_CALL);
-	return SUCCEEDED(hr);
+		else
+		{
+			return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
+		}
+	}
+	return XAudio2SourceQueueResult::XAudio2SourceQueue_Success;
 }
 
 BOOL XAudio2SourceVoice::FlushSourceBuffers() {

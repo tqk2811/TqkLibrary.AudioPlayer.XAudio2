@@ -1,5 +1,12 @@
 #ifndef _XAudio2SourceVoice_H_
 #define _XAudio2SourceVoice_H_
+enum XAudio2SourceQueueResult : INT32
+{
+	XAudio2SourceQueue_Failed = -1,
+	XAudio2SourceQueue_Success = 0,
+	XAudio2SourceQueue_QueueFull = 1,
+};
+
 class XAudio2SourceVoice
 {
 public:
@@ -18,7 +25,7 @@ public:
 	VOID GetChannelVolumes(UINT32 channels, FLOAT* pVolume);
 
 
-	BOOL QueueFrame(const AVFrame* pFrame, BOOL isEof = FALSE);
+	XAudio2SourceQueueResult QueueFrame(const AVFrame* pFrame, BOOL isEof = FALSE);
 	BOOL FlushSourceBuffers();
 
 

@@ -3,7 +3,7 @@ using TqkLibrary.AudioPlayer.XAudio2;
 
 string filePath = ".\\01 Rainbow.mp3";
 //string filePath = "D:\\test.mp4";
-while(true)
+while (true)
 {
     using DebugAudioSource debugAudioSource = new DebugAudioSource(filePath);
     using DebugAudioSource.AVFrame aVFrame = new DebugAudioSource.AVFrame();
@@ -18,6 +18,7 @@ while(true)
     {
         return;
     }
+    QueueResult queueResult;
     do
     {
         if (Console.KeyAvailable)
@@ -42,13 +43,26 @@ while(true)
                     }
             }
         }
-        if (!sourceVoice.QueueFrame(aVFrame.Handle))
+        while (true)
         {
-            break;
+            queueResult = sourceVoice.QueueFrame(aVFrame.Handle);
+            if (queueResult == QueueResult.QueueFull)
+            {
+                await Task.Delay(100);
+                continue;
+            }
+            else if (queueResult == QueueResult.Success)
+            {
+                break;
+            }
+            else
+            {
+                return;
+            }
         }
     }
     while (debugAudioSource.ReadFrame(aVFrame));
-    sourceVoice.QueueFrame(IntPtr.Zero, true);
+    queueResult = sourceVoice.QueueFrame(IntPtr.Zero, true);
 }
 Console.WriteLine("End");
 
