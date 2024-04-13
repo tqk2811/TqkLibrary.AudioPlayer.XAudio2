@@ -1,93 +1,230 @@
 #include "pch.h"
 #include "Exports.h"
 
-
-
-XAudio2Player* XAudio2Player_Alloc()
-{
-	XAudio2Player* player = new XAudio2Player();
-	if (player->Init())
-		return player;
+XAudio2Engine* XAudio2Engine_Alloc() {
+	SetLastError(0);
+	XAudio2Engine* pEngine = new XAudio2Engine();
+	if (pEngine->Init())
+	{
+		return pEngine;
+	}
 	else
 	{
-		delete player;
+		delete pEngine;
 		return nullptr;
 	}
 }
-void XAudio2Player_Free(XAudio2Player** ppxAudio2Player)
-{
-	if (ppxAudio2Player)
+void XAudio2Engine_Free(XAudio2Engine** ppEngine) {
+	if (ppEngine)
 	{
-		XAudio2Player* pointer = *ppxAudio2Player;
-		if (pointer)
+		XAudio2Engine* pEngine = *ppEngine;
+		if (pEngine)
 		{
-			delete pointer;
-			*ppxAudio2Player = nullptr;
+			delete pEngine;
+			*ppEngine = nullptr;
 		}
 	}
 }
 
-XAudio2Voice* XAudio2Voice_Alloc(XAudio2Player* pxAudio2Player, const AVFrame* pFrame) {
-	if (pxAudio2Player)
+
+XAudio2MasterVoice* XAudio2MasterVoice_Alloc(const XAudio2Engine* pEngine, int nb_channels, int sample_rate) {
+	SetLastError(0);
+	if (!pEngine)
+		return nullptr;
+
+	XAudio2MasterVoice* pMasterVocie = new XAudio2MasterVoice(pEngine);
+	if (pMasterVocie->Init(nb_channels, sample_rate))
 	{
-		XAudio2Voice* pSource = new XAudio2Voice(pxAudio2Player->GetInterface());
-		if (pSource->Init(pFrame))
-			return pSource;
-		else
+		return pMasterVocie;
+	}
+	else
+	{
+		delete pMasterVocie;
+		return nullptr;
+	}
+}
+XAudio2MasterVoice* XAudio2MasterVoice_Alloc_AVFrame(const XAudio2Engine* pEngine, const AVFrame* pFrame) {
+	SetLastError(0);
+	if (!pEngine || !pFrame)
+		return nullptr;
+
+	return XAudio2MasterVoice_Alloc(pEngine, pFrame->ch_layout.nb_channels, pFrame->sample_rate);
+}
+void XAudio2MasterVoice_Free(XAudio2MasterVoice** ppMasterVoice)
+{
+	if (ppMasterVoice)
+	{
+		XAudio2MasterVoice* pMasterVoice = *ppMasterVoice;
+		if (pMasterVoice)
 		{
-			delete pSource;
-			return nullptr;
+			delete pMasterVoice;
+			*ppMasterVoice = nullptr;
 		}
 	}
-	return nullptr;
 }
-void XAudio2Voice_Free(XAudio2Voice** ppxAudio2Player) {
-	if (ppxAudio2Player)
+BOOL XAudio2MasterVoice_SetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT volume) {
+	SetLastError(0);
+	if (!pMasterVoice)
+		return FALSE;
+	return pMasterVoice->SetVolume(volume);
+}
+VOID XAudio2MasterVoice_GetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT* pVolume) {
+	SetLastError(0);
+	if (!pMasterVoice)
+		return;
+	pMasterVoice->GetVolume(pVolume);
+}
+BOOL XAudio2MasterVoice_SetChannelVolumes(XAudio2MasterVoice* pMasterVoice, UINT32 channels, const FLOAT* pVolume) {
+	SetLastError(0);
+	if (!pMasterVoice)
+		return FALSE;
+	return pMasterVoice->SetChannelVolumes(channels, pVolume);
+}
+VOID XAudio2MasterVoice_GetChannelVolumes(XAudio2MasterVoice* pMasterVoice, UINT32 channels, FLOAT* pVolume) {
+	SetLastError(0);
+	if (!pMasterVoice)
+		return;
+	pMasterVoice->GetChannelVolumes(channels, pVolume);
+}
+
+
+XAudio2SourceVoice* XAudio2SourceVoice_Alloc(const XAudio2MasterVoice* pMasterVoice, const AVFrame* pFrame) {
+	SetLastError(0);
+	if (!pMasterVoice || !pFrame)
+		return nullptr;
+
+	XAudio2SourceVoice* pSourceVoice = new XAudio2SourceVoice(pMasterVoice);
+	if (pSourceVoice->Init(pFrame))
 	{
-		XAudio2Voice* pointer = *ppxAudio2Player;
-		if (pointer)
+		return pSourceVoice;
+	}
+	else
+	{
+		delete pSourceVoice;
+		return nullptr;
+	}
+}
+void XAudio2SourceVoice_Free(XAudio2SourceVoice** ppSourceVoice) {
+	if (ppSourceVoice)
+	{
+		XAudio2SourceVoice* pSourceVoice = *ppSourceVoice;
+		if (pSourceVoice)
 		{
-			delete pointer;
-			*ppxAudio2Player = nullptr;
+			delete pSourceVoice;
+			*ppSourceVoice = nullptr;
 		}
 	}
 }
-BOOL XAudio2Voice_QueueFrame(XAudio2Voice* pXAudio2Voice, const AVFrame* pFrame) {
-	if (pXAudio2Voice && pFrame)
-	{
-		return pXAudio2Voice->QueueFrame(pFrame);
-	}
-	return FALSE;
+BOOL XAudio2SourceVoice_Start(XAudio2SourceVoice* pSourceVoice) {
+	SetLastError(0);
+	if (!pSourceVoice)
+		return FALSE;
+	return pSourceVoice->Start();
 }
+BOOL XAudio2SourceVoice_Stop(XAudio2SourceVoice* pSourceVoice, UINT32 flag) {//0 or XAUDIO2_PLAY_TAILS
+	SetLastError(0);
+	if (!pSourceVoice)
+		return FALSE;
+	return pSourceVoice->Stop(flag);
+}
+BOOL XAudio2SourceVoice_SetVolume(XAudio2SourceVoice* pSourceVoice, FLOAT volume) {
+	SetLastError(0);
+	if (!pSourceVoice)
+		return FALSE;
+	return pSourceVoice->SetVolume(volume);
+}
+VOID XAudio2SourceVoice_GetVolume(XAudio2SourceVoice* pSourceVoice, FLOAT* volume) {
+	SetLastError(0);
+	if (!pSourceVoice)
+		return;
+	pSourceVoice->GetVolume(volume);
+}
+BOOL XAudio2SourceVoice_SetChannelVolumes(XAudio2SourceVoice* pSourceVoice, UINT32 channels, const FLOAT* pVolume) {
+	SetLastError(0);
+	if (!pSourceVoice)
+		return FALSE;
+	return pSourceVoice->SetChannelVolumes(channels, pVolume);
+}
+VOID XAudio2SourceVoice_GetChannelVolumes(XAudio2SourceVoice* pSourceVoice, UINT32 channels, FLOAT* pVolume) {
+	SetLastError(0);
+	if (!pSourceVoice)
+		return;
+	pSourceVoice->GetChannelVolumes(channels, pVolume);
+}
+BOOL XAudio2SourceVoice_QueueFrame(XAudio2SourceVoice* pSourceVoice, const AVFrame* pFrame, BOOL isEof) {
+	SetLastError(0);
+	if (!pSourceVoice)
+		return FALSE;
+
+	return pSourceVoice->QueueFrame(pFrame, isEof);
+}
+BOOL XAudio2SourceVoice_FlushSourceBuffers(XAudio2SourceVoice* pSourceVoice) {
+	SetLastError(0);
+	if (!pSourceVoice)
+		return FALSE;
+	return pSourceVoice->FlushSourceBuffers();
+}
+
+
 
 #if _DEBUG
 void Test() {
 	DebugAudioSource* dbgAudio = new DebugAudioSource();
+	XAudio2Engine* pEngine{ nullptr };
+	XAudio2MasterVoice* pMasterVoice{ nullptr };
+	XAudio2SourceVoice* sourceVoice{ nullptr };
+	AVFrame* pframe{ nullptr };
+
 	if (dbgAudio->Init((LPSTR)".\\01 Rainbow.mp3"))
 	{
-		XAudio2Player* player = new XAudio2Player();
-		if (!player->Init()) {
-			delete player;
-			delete dbgAudio;
-			return;
+		pEngine = new XAudio2Engine();
+		if (!pEngine->Init()) {
+			goto clean;
 		}
-		XAudio2Voice* voice = new XAudio2Voice(player->GetInterface());
 
-		AVFrame* pframe = av_frame_alloc();
-		while (dbgAudio->ReadFrame(pframe))
+		pframe = av_frame_alloc();
+		if (!dbgAudio->ReadFrame(pframe)) {
+			goto clean;
+		}
+
+		pMasterVoice = new XAudio2MasterVoice(pEngine);
+		if (!pMasterVoice->Init(pframe->ch_layout.nb_channels, pframe->sample_rate)) {
+			goto clean;
+		}
+
+		sourceVoice = new XAudio2SourceVoice(pMasterVoice);
+		if (!sourceVoice->Init(pframe)) {
+			goto clean;
+		}
+
+		if (!sourceVoice->Start()) {
+			goto clean;
+		}
+
+		do
 		{
-			bool r = voice->Init(pframe);
-
-			if (r)
-				r = voice->QueueFrame(pframe);
-
-			if (!r)
-				break;
-		}
-		av_frame_free(&pframe);
-		voice->QueueFrame(nullptr, true);
-		delete voice;
-		delete player;
+			if (!sourceVoice->QueueFrame(pframe)) {
+				goto clean;
+			}
+		} while (dbgAudio->ReadFrame(pframe));
+	}
+clean:
+	av_frame_free(&pframe);
+	if (sourceVoice) {
+		sourceVoice->QueueFrame(nullptr, true);
+		sourceVoice->Stop();
+		delete sourceVoice;
+		sourceVoice = nullptr;
+	}
+	if (pMasterVoice)
+	{
+		delete pMasterVoice;
+		pMasterVoice = nullptr;
+	}
+	if (pEngine)
+	{
+		delete pEngine;
+		pEngine = nullptr;
 	}
 	delete dbgAudio;
 }

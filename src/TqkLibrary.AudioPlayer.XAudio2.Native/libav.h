@@ -11,6 +11,7 @@ extern "C" {
 inline int CheckErr(int err) {
 	if (err != 0)
 	{
+		SetLastError(err);
 		char buffer[1024];
 		av_strerror(err, buffer, 1024);
 		const char* msg = &buffer[0];
@@ -18,5 +19,4 @@ inline int CheckErr(int err) {
 	}
 	return err;
 }
-
 #endif // libav_H

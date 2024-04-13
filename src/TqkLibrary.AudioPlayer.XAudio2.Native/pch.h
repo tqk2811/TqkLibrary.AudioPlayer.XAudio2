@@ -16,13 +16,15 @@
 #include "libav.h"
 using namespace Microsoft::WRL;
 
-typedef class XAudio2Player XAudio2Player;
-typedef class XAudio2Voice XAudio2Voice;
+typedef class XAudio2Engine XAudio2Engine;
+typedef class XAudio2MasterVoice XAudio2MasterVoice;
+typedef class XAudio2SourceVoice XAudio2SourceVoice;
 typedef class XAudio2VoiceCallback XAudio2VoiceCallback;
 typedef class SwrConvert SwrConvert;
 
-#include "XAudio2Player.h"
-#include "XAudio2Voice.h"
+#include "XAudio2Engine.h"
+#include "XAudio2MasterVoice.h"
+#include "XAudio2SourceVoice.h"
 #include "XAudio2VoiceCallback.h"
 #include "SwrConvert.h"
 

@@ -172,8 +172,9 @@
     <ClInclude Include="libav.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SwrConvert.h" />
-    <ClInclude Include="XAudio2Player.h" />
-    <ClInclude Include="XAudio2Voice.h" />
+    <ClInclude Include="XAudio2MasterVoice.h" />
+    <ClInclude Include="XAudio2Engine.h" />
+    <ClInclude Include="XAudio2SourceVoice.h" />
     <ClInclude Include="XAudio2VoiceCallback.h" />
   </ItemGroup>
   <ItemGroup>
@@ -187,8 +188,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SwrConvert.cpp" />
-    <ClCompile Include="XAudio2Player.cpp" />
-    <ClCompile Include="XAudio2Voice.cpp" />
+    <ClCompile Include="XAudio2MasterVoice.cpp" />
+    <ClCompile Include="XAudio2Engine.cpp" />
+    <ClCompile Include="XAudio2SourceVoice.cpp" />
     <ClCompile Include="XAudio2VoiceCallback.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

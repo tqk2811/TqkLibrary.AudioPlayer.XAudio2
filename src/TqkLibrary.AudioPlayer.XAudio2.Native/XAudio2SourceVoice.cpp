@@ -1,15 +1,17 @@
 #include "pch.h"
 #include "XAudio2VoiceCallback.h"
-#include "XAudio2Voice.h"
+#include "XAudio2SourceVoice.h"
 
 
-XAudio2Voice::XAudio2Voice(ComPtr<IXAudio2> xaudio2) {
-	assert(xaudio2);
-	this->_xaudio2 = xaudio2;
+XAudio2SourceVoice::XAudio2SourceVoice(const XAudio2MasterVoice* masterVoice) {
+	assert(masterVoice);
+
+	this->_xaudio2 = masterVoice->_xaudio2;
+	this->_masterVoice = masterVoice->_masterVoice;
 	this->_callback = new XAudio2VoiceCallback();
 }
 
-XAudio2Voice::~XAudio2Voice() {
+XAudio2SourceVoice::~XAudio2SourceVoice() {
 	if (_sourceVoice != nullptr) {
 		_sourceVoice->DestroyVoice();
 		_sourceVoice = nullptr;
@@ -25,12 +27,13 @@ XAudio2Voice::~XAudio2Voice() {
 }
 
 
-BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
+BOOL XAudio2SourceVoice::Init(const AVFrame* pFrame) {
+	SetLastError(0);
 	if (!pFrame)
 		return FALSE;
-	if (this->_sourceVoice || this->_masterVoice)
+	if (this->_sourceVoice)
 		return TRUE;
-
+	HRESULT hr{ 0 };
 	WAVEFORMATEX sourceFormat;
 	ZeroMemory(&sourceFormat, sizeof(WAVEFORMATEX));
 	switch ((AVSampleFormat)pFrame->format)
@@ -113,17 +116,6 @@ BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 	}
 	}
 
-	HRESULT hr;
-	hr = this->_xaudio2->CreateMasteringVoice(
-		&this->_masterVoice,
-		pFrame->ch_layout.nb_channels,
-		pFrame->sample_rate,
-		0
-	);
-	if (FAILED(hr))
-		return FALSE;
-
-
 	sourceFormat.nChannels = pFrame->ch_layout.nb_channels;
 	sourceFormat.nSamplesPerSec = pFrame->sample_rate;
 	sourceFormat.nBlockAlign = sourceFormat.nChannels * (sourceFormat.wBitsPerSample / 8);
@@ -147,17 +139,71 @@ BOOL XAudio2Voice::Init(const AVFrame* pFrame) {
 		&sends,
 		nullptr
 	);
-	if (FAILED(hr))
-		return FALSE;
-
-	hr = _sourceVoice->Start();
-	if (FAILED(hr))
-		return FALSE;
+	SetLastError(hr);
 
 	return SUCCEEDED(hr);
 }
+BOOL XAudio2SourceVoice::Start() {
+	SetLastError(0);
+	if (!this->_sourceVoice)
+		return FALSE;
 
-BOOL XAudio2Voice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
+	HRESULT hr{ 0 };
+	hr = _sourceVoice->Start();
+	SetLastError(hr);
+
+	return SUCCEEDED(hr);
+}
+BOOL XAudio2SourceVoice::Stop(UINT32 flag) {
+	SetLastError(0);
+	if (!this->_sourceVoice)
+		return FALSE;
+
+	HRESULT hr{ 0 };
+	hr = _sourceVoice->Stop(flag);
+	SetLastError(hr);
+	return SUCCEEDED(hr);
+}
+BOOL XAudio2SourceVoice::SetVolume(FLOAT volume) {
+	SetLastError(0);
+	if (!this->_sourceVoice)
+		return FALSE;
+
+	HRESULT hr{ 0 };
+	hr = _sourceVoice->SetVolume(volume);
+	SetLastError(hr);
+
+	return SUCCEEDED(hr);
+}
+VOID XAudio2SourceVoice::GetVolume(FLOAT* volume) {
+	SetLastError(0);
+	if (!this->_sourceVoice)
+		return;
+	_sourceVoice->GetVolume(volume);
+}
+
+BOOL XAudio2SourceVoice::SetChannelVolumes(UINT32 channels, const FLOAT* pVolume) {
+	SetLastError(0);
+	if (!this->_sourceVoice)
+		return FALSE;
+
+	HRESULT hr{ 0 };
+	hr = _sourceVoice->SetChannelVolumes(channels, pVolume);
+	SetLastError(hr);
+
+	return SUCCEEDED(hr);
+}
+VOID XAudio2SourceVoice::GetChannelVolumes(UINT32 channels, FLOAT* pVolume) {
+	SetLastError(0);
+	if (!this->_sourceVoice)
+		return;
+
+	_sourceVoice->GetChannelVolumes(channels, pVolume);
+}
+
+
+BOOL XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
+	SetLastError(0);
 	if (!_sourceVoice)
 		return FALSE;
 
@@ -226,15 +272,23 @@ BOOL XAudio2Voice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 			}
 			else
 			{
-				/*if (tmpBuff)
-				{
-					delete[] tmpBuff;
-					tmpBuff = nullptr;
-				}*/
 				av_frame_free(&newFrame);
+				SetLastError(hr);
 				return FALSE;
 			}
 		}
 	} while (hr == XAUDIO2_E_INVALID_CALL);
+	return SUCCEEDED(hr);
+}
+
+BOOL XAudio2SourceVoice::FlushSourceBuffers() {
+	SetLastError(0);
+	if (!_sourceVoice)
+		return FALSE;
+
+	HRESULT hr{ 0 };
+	hr = _sourceVoice->FlushSourceBuffers();
+	SetLastError(hr);
+
 	return SUCCEEDED(hr);
 }
