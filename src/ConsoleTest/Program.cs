@@ -3,6 +3,7 @@ using TqkLibrary.AudioPlayer.XAudio2;
 
 string filePath = ".\\01 Rainbow.mp3";
 //string filePath = "D:\\test.mp4";
+while(true)
 {
     using DebugAudioSource debugAudioSource = new DebugAudioSource(filePath);
     using DebugAudioSource.AVFrame aVFrame = new DebugAudioSource.AVFrame();
