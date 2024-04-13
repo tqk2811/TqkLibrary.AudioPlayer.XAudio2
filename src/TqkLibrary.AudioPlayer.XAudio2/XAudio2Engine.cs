@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.AudioPlayer.XAudio2
 {
-    public class XAudio2Player : IDisposable
+    public class XAudio2Engine : IDisposable
     {
         IntPtr _pointer = IntPtr.Zero;
         internal IntPtr Pointer { get { return _pointer; } }
-        public XAudio2Player()
+        public XAudio2Engine()
         {
-            _pointer = NativeWrapper.XAudio2Player_Alloc();
+            _pointer = NativeWrapper.XAudio2Engine_Alloc();
             if (_pointer == IntPtr.Zero)
-                throw new ApplicationException($"Create and load IXAudio2 failed");
+                throw new ApplicationException($"Create and load {nameof(XAudio2Engine)} failed (last error : {NativeWrapper.GetLastError()})");
         }
-        ~XAudio2Player()
+        ~XAudio2Engine()
         {
             Dispose(false);
         }
@@ -29,7 +29,7 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         void Dispose(bool isDisposing)
         {
             if (_pointer != IntPtr.Zero)
-                NativeWrapper.XAudio2Player_Free(ref _pointer);
+                NativeWrapper.XAudio2Engine_Free(ref _pointer);
         }
 
         /// <summary>
@@ -37,9 +37,13 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         /// </summary>
         /// <param name="avFrame">FFmpeg AVFrame</param>
         /// <returns></returns>
-        public XAudio2SourceVoice CreateXAudio2SourceVoice(IntPtr avFrame)
+        public XAudio2MasterVoice CreateMasterVoice(IntPtr avFrame)
         {
-            return new XAudio2SourceVoice(this, avFrame);
+            return new XAudio2MasterVoice(this, avFrame);
+        }
+        public XAudio2MasterVoice CreateMasterVoice(int nb_channels, int sample_rate)
+        {
+            return new XAudio2MasterVoice(this, nb_channels, sample_rate);
         }
 
 

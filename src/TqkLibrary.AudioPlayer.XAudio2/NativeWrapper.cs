@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -32,24 +33,72 @@ namespace TqkLibrary.AudioPlayer.XAudio2
 
 #endif
 
+        [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int GetLastError();
 
 
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr XAudio2Player_Alloc();
+        internal static extern IntPtr XAudio2Engine_Alloc();
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void XAudio2Player_Free(ref IntPtr intPtr);
+        internal static extern void XAudio2Engine_Free(ref IntPtr intPtr);
+
+
+
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr XAudio2MasterVoice_Alloc(IntPtr pEngine, int nb_channels, int sample_rate);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr XAudio2MasterVoice_Alloc_AVFrame(IntPtr pEngine, IntPtr pAVFrame);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void XAudio2MasterVoice_Free(ref IntPtr pMasterVoice);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2MasterVoice_SetVolume(IntPtr pMasterVoice, float volume);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void XAudio2MasterVoice_GetVolume(IntPtr pMasterVoice, ref float volume);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2MasterVoice_SetChannelVolumes(IntPtr pMasterVoice, UInt32 channels, [MarshalAs(UnmanagedType.LPArray)] float[] volumes);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void XAudio2MasterVoice_GetChannelVolumes(IntPtr pMasterVoice, UInt32 channels, [MarshalAs(UnmanagedType.LPArray)] ref float[] volumes);
+
 
 
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr XAudio2SourceVoice_Alloc(IntPtr XAudio2_Pointer, IntPtr avFrame);
+        internal static extern IntPtr XAudio2SourceVoice_Alloc(IntPtr pMasterVoice, IntPtr pAVFrame);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void XAudio2SourceVoice_Free(ref IntPtr intPtr);
+        internal static extern void XAudio2SourceVoice_Free(ref IntPtr pSourceVoice);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool XAudio2SourceVoice_QueueFrame(IntPtr handle, IntPtr avFrame);
+        internal static extern bool XAudio2SourceVoice_Start(IntPtr pSourceVoice);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2SourceVoice_Stop(IntPtr pSourceVoice, StopFlag stopFlag);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2SourceVoice_SetVolume(IntPtr pSourceVoice, float volume);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void XAudio2SourceVoice_GetVolume(IntPtr pSourceVoice, ref float volume);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2SourceVoice_SetChannelVolumes(IntPtr pSourceVoice, UInt32 channels, [MarshalAs(UnmanagedType.LPArray)] float[] volumes);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void XAudio2SourceVoice_GetChannelVolumes(IntPtr pSourceVoice, UInt32 channels, [MarshalAs(UnmanagedType.LPArray)] ref float[] volumes);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2SourceVoice_QueueFrame(IntPtr pSourceVoice, IntPtr pAVFrame);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2SourceVoice_FlushSourceBuffers(IntPtr pSourceVoice);
     }
 }
