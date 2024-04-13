@@ -45,13 +45,5 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         {
             return new XAudio2MasterVoice(this, nb_channels, sample_rate);
         }
-
-
-#if DEBUG
-        public static void Test()
-        {
-            NativeWrapper.Test();
-        }
-#endif
     }
 }

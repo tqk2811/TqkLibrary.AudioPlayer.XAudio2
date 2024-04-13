@@ -168,64 +168,34 @@ BOOL XAudio2SourceVoice_FlushSourceBuffers(XAudio2SourceVoice* pSourceVoice) {
 
 
 #if _DEBUG
-void Test() {
-	DebugAudioSource* dbgAudio = new DebugAudioSource();
-	XAudio2Engine* pEngine{ nullptr };
-	XAudio2MasterVoice* pMasterVoice{ nullptr };
-	XAudio2SourceVoice* sourceVoice{ nullptr };
-	AVFrame* pframe{ nullptr };
-
-	if (dbgAudio->Init((LPSTR)".\\01 Rainbow.mp3"))
+DebugAudioSource* DebugAudioSource_Alloc(LPSTR filePath) {
+	SetLastError(0);
+	DebugAudioSource* pAudioSource = new DebugAudioSource();
+	if (pAudioSource->Init(filePath))
 	{
-		pEngine = new XAudio2Engine();
-		if (!pEngine->Init()) {
-			goto clean;
-		}
-
-		pframe = av_frame_alloc();
-		if (!dbgAudio->ReadFrame(pframe)) {
-			goto clean;
-		}
-
-		pMasterVoice = new XAudio2MasterVoice(pEngine);
-		if (!pMasterVoice->Init(pframe->ch_layout.nb_channels, pframe->sample_rate)) {
-			goto clean;
-		}
-
-		sourceVoice = new XAudio2SourceVoice(pMasterVoice);
-		if (!sourceVoice->Init(pframe)) {
-			goto clean;
-		}
-
-		if (!sourceVoice->Start()) {
-			goto clean;
-		}
-
-		do
+		return pAudioSource;
+	}
+	else
+	{
+		delete pAudioSource;
+		return nullptr;
+	}
+}
+VOID DebugAudioSource_Free(DebugAudioSource** ppAudioSource) {
+	if (ppAudioSource)
+	{
+		DebugAudioSource* pAudioSource = *ppAudioSource;
+		if (pAudioSource)
 		{
-			if (!sourceVoice->QueueFrame(pframe)) {
-				goto clean;
-			}
-		} while (dbgAudio->ReadFrame(pframe));
+			delete pAudioSource;
+			*ppAudioSource = nullptr;
+		}
 	}
-clean:
-	av_frame_free(&pframe);
-	if (sourceVoice) {
-		sourceVoice->QueueFrame(nullptr, true);
-		sourceVoice->Stop();
-		delete sourceVoice;
-		sourceVoice = nullptr;
-	}
-	if (pMasterVoice)
-	{
-		delete pMasterVoice;
-		pMasterVoice = nullptr;
-	}
-	if (pEngine)
-	{
-		delete pEngine;
-		pEngine = nullptr;
-	}
-	delete dbgAudio;
+}
+BOOL DebugAudioSource_ReadFrame(DebugAudioSource* pAudioSource, AVFrame* pframe) {
+	SetLastError(0);
+	if (!pAudioSource)
+		return FALSE;
+	return pAudioSource->ReadFrame(pframe);
 }
 #endif

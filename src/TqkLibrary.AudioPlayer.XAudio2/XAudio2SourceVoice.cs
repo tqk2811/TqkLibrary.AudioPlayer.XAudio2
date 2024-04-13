@@ -60,9 +60,9 @@
         }
 
 
-        public bool QueueFrame(IntPtr avFrame)
+        public bool QueueFrame(IntPtr avFrame, bool isEof = false)
         {
-            return NativeWrapper.XAudio2SourceVoice_QueueFrame(_pointer, avFrame);
+            return NativeWrapper.XAudio2SourceVoice_QueueFrame(_pointer, avFrame, isEof);
         }
 
         /// <summary>

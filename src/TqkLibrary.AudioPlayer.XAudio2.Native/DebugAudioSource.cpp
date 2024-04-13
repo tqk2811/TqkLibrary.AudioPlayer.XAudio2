@@ -57,6 +57,8 @@ BOOL DebugAudioSource::ReadFrame(AVFrame* pframe) {
 	if (!pframe)
 		return FALSE;
 
+	av_frame_unref(pframe);
+
 	AVPacket pkt;
 	while (true)
 	{

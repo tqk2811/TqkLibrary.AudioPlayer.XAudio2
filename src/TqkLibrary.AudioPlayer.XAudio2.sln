@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.AudioPlayer.XAud
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TqkLibrary.AudioPlayer.XAudio2.Native", "TqkLibrary.AudioPlayer.XAudio2.Native\TqkLibrary.AudioPlayer.XAudio2.Native.vcxproj", "{E1AFDE3A-1732-4351-9D17-FA0B93184142}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2C271F31-6E5A-4E65-BEF7-FC5FEC2BAE30} = {2C271F31-6E5A-4E65-BEF7-FC5FEC2BAE30}
 	EndProjectSection
@@ -55,12 +55,9 @@ Global
 		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Debug|x64.Build.0 = Debug|x64
 		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Debug|x86.ActiveCfg = Debug|x86
 		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Debug|x86.Build.0 = Debug|x86
-		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|x64.ActiveCfg = Release|x64
-		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|x64.Build.0 = Release|x64
-		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|x86.ActiveCfg = Release|x86
-		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|x86.Build.0 = Release|x86
+		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|x64.ActiveCfg = Debug|x64
+		{01B5DF10-2A6F-4B78-8F9B-38009F1F45A1}.Release|x86.ActiveCfg = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
