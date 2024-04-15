@@ -15,7 +15,7 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         {
             get
             {
-                float volume = -1;
+                float volume = float.NaN;
                 NativeWrapper.XAudio2MasterVoice_GetVolume(_pointer, ref volume);
                 return volume;
             }

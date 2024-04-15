@@ -9,7 +9,7 @@
         {
             get
             {
-                float volume = -1;
+                float volume = float.NaN;
                 NativeWrapper.XAudio2SourceVoice_GetVolume(_pointer, ref volume);
                 return volume;
             }
