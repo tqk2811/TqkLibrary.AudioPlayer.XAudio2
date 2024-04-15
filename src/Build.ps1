@@ -15,3 +15,13 @@ if(![string]::IsNullOrWhiteSpace($localNuget))
     Copy-Item .\TqkLibrary.AudioPlayer.XAudio2\bin\Release\*.nupkg -Destination $localNuget -Force
 }
 
+$nugetKey = $env:nugetKey
+if(![string]::IsNullOrWhiteSpace($nugetKey))
+{
+    Write-Host "Enter to push nuget"
+    pause
+    Write-Host "enter to confirm"
+    pause
+    $files = [System.IO.Directory]::GetFiles(".\bin\Release\")
+    iex "nuget push $($files[0]) -ApiKey $($nugetKey) -Source https://api.nuget.org/v3/index.json"
+}
