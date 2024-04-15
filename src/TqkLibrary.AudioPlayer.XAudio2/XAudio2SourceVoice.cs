@@ -1,4 +1,7 @@
-﻿namespace TqkLibrary.AudioPlayer.XAudio2
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace TqkLibrary.AudioPlayer.XAudio2
 {
     public class XAudio2SourceVoice : IDisposable
     {
@@ -48,15 +51,18 @@
         {
             return NativeWrapper.XAudio2SourceVoice_SetVolume(_pointer, volume);
         }
-        public bool SetChannelVolumes(float[] volumes)
+        public bool SetChannelVolumes(params float[] volumes)
         {
             return NativeWrapper.XAudio2SourceVoice_SetChannelVolumes(_pointer, (UInt32)volumes.Length, volumes);
         }
         public float[] GetChannelVolumes()
         {
-            float[] volumes = Enumerable.Repeat<float>(-1.0f, 32).ToArray();
-            NativeWrapper.XAudio2SourceVoice_GetChannelVolumes(_pointer, (UInt32)volumes.Length, ref volumes);
-            return volumes.Where(x => x >= 0.0f).ToArray();
+            float[] volumes = new float[GetVoiceDetails().InputChannels];
+            for (int i = 0; i < volumes.Length; i++) volumes[i] = float.NaN;
+            GCHandle handle = GCHandle.Alloc(volumes, GCHandleType.Pinned);
+            NativeWrapper.XAudio2SourceVoice_GetChannelVolumes(_pointer, (UInt32)volumes.Length, handle.AddrOfPinnedObject());
+            handle.Free();
+            return volumes;
         }
 
         public XAUDIO2_VOICE_DETAILS GetVoiceDetails()
