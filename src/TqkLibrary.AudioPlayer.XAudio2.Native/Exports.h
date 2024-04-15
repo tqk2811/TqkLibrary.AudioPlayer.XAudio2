@@ -9,8 +9,6 @@ TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS XAudio2MasterVoice* XAudio2MasterVoice
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS void XAudio2MasterVoice_Free(XAudio2MasterVoice** ppMasterVoice);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS BOOL XAudio2MasterVoice_SetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT volume);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS VOID XAudio2MasterVoice_GetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT* pVolume);
-TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS BOOL XAudio2MasterVoice_SetChannelVolumes(XAudio2MasterVoice* pMasterVoice, UINT32 channels, const FLOAT* pVolume);
-TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS VOID XAudio2MasterVoice_GetChannelVolumes(XAudio2MasterVoice* pMasterVoice, UINT32 channels, FLOAT* pVolume);
 
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS XAudio2SourceVoice* XAudio2SourceVoice_Alloc(const XAudio2MasterVoice* pMasterVoice, const AVFrame* pFrame);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS void XAudio2SourceVoice_Free(XAudio2SourceVoice** ppSourceVoice);

@@ -53,22 +53,3 @@ VOID XAudio2MasterVoice::GetVolume(FLOAT* pVolume) {
 
 	this->_masterVoice->GetVolume(pVolume);
 }
-
-BOOL XAudio2MasterVoice::SetChannelVolumes(UINT32 channels, const FLOAT* pVolume) {
-	SetLastError(0);
-	if (!this->_masterVoice)
-		return FALSE;
-
-	HRESULT hr;
-	hr = this->_masterVoice->SetChannelVolumes(channels, pVolume);
-	SetLastError(hr);
-	return SUCCEEDED(hr);
-}
-
-VOID XAudio2MasterVoice::GetChannelVolumes(UINT32 channels, FLOAT* pVolume) {
-	SetLastError(0);
-	if (!this->_masterVoice)
-		return;
-
-	this->_masterVoice->GetChannelVolumes(channels, pVolume);
-}

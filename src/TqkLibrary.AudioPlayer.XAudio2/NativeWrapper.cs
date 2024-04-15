@@ -77,11 +77,6 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void XAudio2MasterVoice_GetVolume(IntPtr pMasterVoice, ref float volume);
 
-        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool XAudio2MasterVoice_SetChannelVolumes(IntPtr pMasterVoice, UInt32 channels, [MarshalAs(UnmanagedType.LPArray)] float[] volumes);
-
-        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void XAudio2MasterVoice_GetChannelVolumes(IntPtr pMasterVoice, UInt32 channels, [MarshalAs(UnmanagedType.LPArray)] ref float[] volumes);
 
 
 

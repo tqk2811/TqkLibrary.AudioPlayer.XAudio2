@@ -74,18 +74,6 @@ VOID XAudio2MasterVoice_GetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT* pVolu
 		return;
 	pMasterVoice->GetVolume(pVolume);
 }
-BOOL XAudio2MasterVoice_SetChannelVolumes(XAudio2MasterVoice* pMasterVoice, UINT32 channels, const FLOAT* pVolume) {
-	SetLastError(0);
-	if (!pMasterVoice)
-		return FALSE;
-	return pMasterVoice->SetChannelVolumes(channels, pVolume);
-}
-VOID XAudio2MasterVoice_GetChannelVolumes(XAudio2MasterVoice* pMasterVoice, UINT32 channels, FLOAT* pVolume) {
-	SetLastError(0);
-	if (!pMasterVoice)
-		return;
-	pMasterVoice->GetChannelVolumes(channels, pVolume);
-}
 
 
 XAudio2SourceVoice* XAudio2SourceVoice_Alloc(const XAudio2MasterVoice* pMasterVoice, const AVFrame* pFrame) {

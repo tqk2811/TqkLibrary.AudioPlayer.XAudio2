@@ -56,17 +56,6 @@ namespace TqkLibrary.AudioPlayer.XAudio2
             return NativeWrapper.XAudio2MasterVoice_SetVolume(_pointer, volume);
         }
 
-        public bool SetChannelVolumes(float[] volumes)
-        {
-            return NativeWrapper.XAudio2MasterVoice_SetChannelVolumes(_pointer, (UInt32)volumes.Length, volumes);
-        }
-        public float[] GetChannelVolumes()
-        {
-            float[] volumes = Enumerable.Repeat<float>(-1.0f, 32).ToArray();
-            NativeWrapper.XAudio2MasterVoice_GetChannelVolumes(_pointer, (UInt32)volumes.Length, ref volumes);
-            return volumes.Where(x => x >= 0.0f).ToArray();
-        }
-
         public XAudio2SourceVoice CreateSourceVoice(IntPtr pAVFrame)
         {
             return new XAudio2SourceVoice(this, pAVFrame);

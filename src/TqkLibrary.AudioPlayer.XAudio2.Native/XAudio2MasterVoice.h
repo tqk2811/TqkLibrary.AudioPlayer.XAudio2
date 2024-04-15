@@ -12,9 +12,6 @@ public:
 	BOOL SetVolume(FLOAT volume);
 	VOID GetVolume(FLOAT* pVolume);
 
-	BOOL SetChannelVolumes(UINT32 channels, const FLOAT* pVolume);
-	VOID GetChannelVolumes(UINT32 channels, FLOAT* pVolume);
-
 private:
 	ComPtr<IXAudio2> _xaudio2{ nullptr };
 	IXAudio2MasteringVoice* _masterVoice{ nullptr };
