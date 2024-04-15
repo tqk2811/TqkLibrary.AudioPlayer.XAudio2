@@ -231,18 +231,8 @@ XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, B
 				newFrame->ch_layout.u.mask = pFrame->ch_layout.u.mask;
 			newFrame->format = this->_outFormat;
 			newFrame->sample_rate = pFrame->sample_rate;
-			if (this->_swrConvert->Convert(pFrame, newFrame))
+			if (!this->_swrConvert->Convert(pFrame, newFrame))
 			{
-				buffer.AudioBytes = av_samples_get_buffer_size(
-					newFrame->linesize,
-					newFrame->ch_layout.nb_channels,
-					newFrame->nb_samples,
-					(AVSampleFormat)newFrame->format,
-					0
-				);
-				buffer.pAudioData = newFrame->data[0];
-			}
-			else {
 				av_frame_free(&newFrame);
 				return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 			}
@@ -251,19 +241,26 @@ XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, B
 		{
 			av_frame_copy_props(newFrame, pFrame);
 			av_frame_ref(newFrame, pFrame);
-			buffer.AudioBytes = av_samples_get_buffer_size(
-				newFrame->linesize,
-				newFrame->ch_layout.nb_channels,
-				newFrame->nb_samples,
-				(AVSampleFormat)newFrame->format,
-				0
-			);
-			buffer.pAudioData = newFrame->data[0];
 		}
 	}
 
+
+	buffer.AudioBytes = av_samples_get_buffer_size(
+		newFrame->linesize,
+		newFrame->ch_layout.nb_channels,
+		newFrame->nb_samples,
+		(AVSampleFormat)newFrame->format,
+		0
+	);
+	buffer.pAudioData = newFrame->data[0];
+
+
 	hr = _sourceVoice->SubmitSourceBuffer(&buffer, nullptr);
-	if (FAILED(hr))
+	if (SUCCEEDED(hr))
+	{
+		return XAudio2SourceQueueResult::XAudio2SourceQueue_Success;
+	}
+	else 
 	{
 		av_frame_free(&newFrame);
 		SetLastError(hr);
@@ -273,19 +270,11 @@ XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, B
 			_sourceVoice->GetState(&state, XAUDIO2_VOICE_NOSAMPLESPLAYED);
 			if (state.BuffersQueued > 0)
 			{
-				return  XAudio2SourceQueueResult::XAudio2SourceQueue_QueueFull;
-			}
-			else
-			{
-				return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
+				return XAudio2SourceQueueResult::XAudio2SourceQueue_QueueFull;
 			}
 		}
-		else
-		{
-			return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
-		}
+		return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 	}
-	return XAudio2SourceQueueResult::XAudio2SourceQueue_Success;
 }
 
 BOOL XAudio2SourceVoice::FlushSourceBuffers() {
