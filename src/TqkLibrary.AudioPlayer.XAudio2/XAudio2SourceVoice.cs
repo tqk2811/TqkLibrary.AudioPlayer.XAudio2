@@ -59,6 +59,12 @@
             return volumes.Where(x => x >= 0.0f).ToArray();
         }
 
+        public XAUDIO2_VOICE_DETAILS GetVoiceDetails()
+        {
+            XAUDIO2_VOICE_DETAILS voiceDetails = new XAUDIO2_VOICE_DETAILS();
+            NativeWrapper.XAudio2SourceVoice_GetVoiceDetails(_pointer, ref voiceDetails);
+            return voiceDetails;
+        }
 
         public QueueResult QueueFrame(IntPtr avFrame, bool isEof = false)
         {

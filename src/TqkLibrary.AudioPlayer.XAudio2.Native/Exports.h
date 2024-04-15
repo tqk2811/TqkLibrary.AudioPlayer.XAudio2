@@ -18,6 +18,7 @@ TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS BOOL XAudio2SourceVoice_SetVolume(XAud
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS VOID XAudio2SourceVoice_GetVolume(XAudio2SourceVoice* pSourceVoice, FLOAT* volume);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS BOOL XAudio2SourceVoice_SetChannelVolumes(XAudio2SourceVoice* pSourceVoice, UINT32 channels, const FLOAT* pVolume);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS VOID XAudio2SourceVoice_GetChannelVolumes(XAudio2SourceVoice* pSourceVoice, UINT32 channels, FLOAT* pVolume);
+TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS VOID XAudio2SourceVoice_GetVoiceDetails(XAudio2SourceVoice* pSourceVoice, XAUDIO2_VOICE_DETAILS* pVoiceDetails);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS XAudio2SourceQueueResult XAudio2SourceVoice_QueueFrame(XAudio2SourceVoice* pSourceVoice, const AVFrame* pFrame, BOOL isEof);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS BOOL XAudio2SourceVoice_FlushSourceBuffers(XAudio2SourceVoice* pSourceVoice);
 
