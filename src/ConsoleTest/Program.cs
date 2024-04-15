@@ -83,15 +83,19 @@ while (true)
                     }
 
                 case ConsoleKey.R:
-                    if (!sourceVoice.SetVolume(1.0f))
                     {
-                        throw new ApplicationException();
+                        if (!sourceVoice.SetVolume(1.0f))
+                        {
+                            throw new ApplicationException();
+                        }
+                        float[] volumes = sourceVoice.GetChannelVolumes();
+                        for (int i = 0; i < volumes.Length; i++) volumes[i] = 1.0f;
+                        if (!sourceVoice.SetChannelVolumes(volumes))
+                        {
+                            throw new ApplicationException();
+                        }
+                        break;
                     }
-                    if (!sourceVoice.SetChannelVolumes(1.0f, 1.0f))
-                    {
-                        throw new ApplicationException();
-                    }
-                    break;
             }
         }
         do
