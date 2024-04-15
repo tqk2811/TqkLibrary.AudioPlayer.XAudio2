@@ -8,6 +8,7 @@ namespace TqkLibrary.AudioPlayer.XAudio2
 {
     public class XAudio2MasterVoice : IDisposable
     {
+        readonly XAudio2Engine _engine;
         IntPtr _pointer = IntPtr.Zero;
         internal IntPtr Pointer { get { return _pointer; } }
         public float Volume
@@ -19,14 +20,16 @@ namespace TqkLibrary.AudioPlayer.XAudio2
                 return volume;
             }
         }
-        public XAudio2MasterVoice(XAudio2Engine engine, IntPtr pAVFrame)
+        internal XAudio2MasterVoice(XAudio2Engine engine, IntPtr pAVFrame)
         {
+            this._engine = engine ?? throw new ArgumentNullException(nameof(engine));
             _pointer = NativeWrapper.XAudio2MasterVoice_Alloc_AVFrame(engine.Pointer, pAVFrame);
             if (_pointer == IntPtr.Zero)
                 throw new ApplicationException($"Create and load {nameof(XAudio2MasterVoice)} failed (last error : {NativeWrapper.GetLastError()})");
         }
-        public XAudio2MasterVoice(XAudio2Engine engine, int nb_channels, int sample_rate)
+        internal XAudio2MasterVoice(XAudio2Engine engine, int nb_channels, int sample_rate)
         {
+            this._engine = engine ?? throw new ArgumentNullException(nameof(engine));
             _pointer = NativeWrapper.XAudio2MasterVoice_Alloc(engine.Pointer, nb_channels, sample_rate);
             if (_pointer == IntPtr.Zero)
                 throw new ApplicationException($"Create and load {nameof(XAudio2MasterVoice)} failed (last error : {NativeWrapper.GetLastError()})");
