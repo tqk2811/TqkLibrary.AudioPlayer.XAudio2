@@ -109,6 +109,9 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         internal static extern void XAudio2SourceVoice_GetVoiceDetails(IntPtr pSourceVoice, ref XAUDIO2_VOICE_DETAILS voiceDetails);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void XAudio2SourceVoice_GetState(IntPtr pSourceVoice, ref XAUDIO2_VOICE_STATE state, UInt32 flag);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern QueueResult XAudio2SourceVoice_QueueFrame(IntPtr pSourceVoice, IntPtr pAVFrame, bool isEof);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]

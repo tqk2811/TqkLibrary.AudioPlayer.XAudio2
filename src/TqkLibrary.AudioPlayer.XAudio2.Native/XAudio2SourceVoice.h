@@ -25,6 +25,7 @@ public:
 	VOID GetChannelVolumes(UINT32 channels, FLOAT* pVolume);
 
 	VOID GetVoiceDetails(XAUDIO2_VOICE_DETAILS* pVoiceDetails);
+	VOID GetState(XAUDIO2_VOICE_STATE* pState, UINT32 flag);
 
 	XAudio2SourceQueueResult QueueFrame(const AVFrame* pFrame, BOOL isEof = FALSE);
 	BOOL FlushSourceBuffers();

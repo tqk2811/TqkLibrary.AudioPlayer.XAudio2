@@ -73,6 +73,22 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         }
 
         /// <summary>
+        /// Disable get <see cref="XAUDIO2_VOICE_STATE.SamplesPlayed"/>
+        /// </summary>
+        public const UInt32 XAUDIO2_VOICE_NOSAMPLESPLAYED = 0x0100;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="flag">Defaut: <see cref="XAUDIO2_VOICE_NOSAMPLESPLAYED"/></param>
+        /// <returns></returns>
+        public XAUDIO2_VOICE_STATE GetState(UInt32 flag = XAUDIO2_VOICE_NOSAMPLESPLAYED)
+        {
+            XAUDIO2_VOICE_STATE state = new XAUDIO2_VOICE_STATE();
+            NativeWrapper.XAudio2SourceVoice_GetState(_pointer, ref state, flag);
+            return state;
+        }
+
+        /// <summary>
         /// Clone or Convert this frame and put into the queue
         /// </summary>
         /// <param name="avFrame">Note: must realse your frame after funtion</param>

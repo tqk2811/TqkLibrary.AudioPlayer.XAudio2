@@ -207,6 +207,13 @@ VOID XAudio2SourceVoice::GetVoiceDetails(XAUDIO2_VOICE_DETAILS* pVoiceDetails) {
 
 	_sourceVoice->GetVoiceDetails(pVoiceDetails);
 }
+VOID XAudio2SourceVoice::GetState(XAUDIO2_VOICE_STATE* pState, UINT32 flag) {
+	SetLastError(0);
+	if (!this->_sourceVoice)
+		return;
+
+	_sourceVoice->GetState(pState, flag);
+}
 
 XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, BOOL isEof) {
 	SetLastError(0);
