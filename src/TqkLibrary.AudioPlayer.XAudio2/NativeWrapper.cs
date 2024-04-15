@@ -12,6 +12,8 @@ namespace TqkLibrary.AudioPlayer.XAudio2
     internal static class NativeWrapper
     {
 #if DEBUG
+
+#if NETFRAMEWORK
         static NativeWrapper()
         {
             string path = Path.Combine(
@@ -27,6 +29,7 @@ namespace TqkLibrary.AudioPlayer.XAudio2
 
         [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool SetDllDirectory(string PathName);
+#endif
 
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
