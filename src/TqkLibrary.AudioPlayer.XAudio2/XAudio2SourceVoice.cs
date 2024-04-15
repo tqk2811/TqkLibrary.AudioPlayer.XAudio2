@@ -72,9 +72,15 @@ namespace TqkLibrary.AudioPlayer.XAudio2
             return voiceDetails;
         }
 
-        public QueueResult QueueFrame(IntPtr avFrame, bool isEof = false)
+        /// <summary>
+        /// Clone or Convert this frame and put into the queue
+        /// </summary>
+        /// <param name="avFrame">Note: must realse your frame after funtion</param>
+        /// <param name="isEof"></param>
+        /// <returns></returns>
+        public QueueResult QueueFrame(IntPtr pAVFrame, bool isEof = false)
         {
-            return NativeWrapper.XAudio2SourceVoice_QueueFrame(_pointer, avFrame, isEof);
+            return NativeWrapper.XAudio2SourceVoice_QueueFrame(_pointer, pAVFrame, isEof);
         }
 
         /// <summary>
