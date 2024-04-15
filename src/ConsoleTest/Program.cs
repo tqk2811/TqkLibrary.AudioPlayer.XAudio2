@@ -41,25 +41,33 @@ while (true)
                         Console.WriteLine($"Volume: {volume}");
                         break;
                     }
+
+                case ConsoleKey.S:
+                    {
+                        Console.WriteLine($"sourceVoice.GetChannelVolumes: {string.Join(",", sourceVoice.GetChannelVolumes())}");
+                        break;
+                    }
+
+                case ConsoleKey.M:
+                    {
+                        Console.WriteLine($"masterVoice.GetChannelVolumes: {string.Join(",", masterVoice.GetChannelVolumes())}");
+                        break;
+                    }
             }
         }
-        while (true)
+        do
         {
             queueResult = sourceVoice.QueueFrame(aVFrame.Handle);
-            if (queueResult == QueueResult.QueueFull)
+            switch (queueResult)
             {
-                await Task.Delay(100);
-                continue;
-            }
-            else if (queueResult == QueueResult.Success)
-            {
-                break;
-            }
-            else
-            {
-                return;
+                case QueueResult.Failed:
+                    return;
+                case QueueResult.QueueFull:
+                    await Task.Delay(100);
+                    continue;
             }
         }
+        while (queueResult == QueueResult.QueueFull);
     }
     while (debugAudioSource.ReadFrame(aVFrame));
     queueResult = sourceVoice.QueueFrame(IntPtr.Zero, true);
