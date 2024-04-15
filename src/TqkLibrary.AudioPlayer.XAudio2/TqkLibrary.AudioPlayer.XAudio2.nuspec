@@ -9,6 +9,7 @@
 		<projectUrl>https://github.com/tqk2811/TqkLibrary.AudioPlayer.XAudio2</projectUrl>
 		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.AudioPlayer.XAudio2.git"/>
 		<license type="expression">MIT</license>
+		<readme>docs\README.md</readme>
 		<dependencies>
 			<group targetFramework="net462">
 				<dependency id="TqkLibrary.FFmpeg.GplShared" version="5.1.2" />
@@ -35,7 +36,9 @@
 
 		<file src="..\x64\Release\TqkLibrary.AudioPlayer.XAudio2.Native.dll" target="runtimes\win-x64\native\" />
 		<file src="..\x86\Release\TqkLibrary.AudioPlayer.XAudio2.Native.dll" target="runtimes\win-x86\native\" />
-		
+
 		<file src="TqkLibrary.AudioPlayer.XAudio2.props" target="build\" />
+
+		<file src="..\..\README.md" target="docs\" />
 	</files>
 </package>
