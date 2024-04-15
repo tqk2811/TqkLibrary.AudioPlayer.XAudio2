@@ -220,7 +220,7 @@ XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, B
 		if (!pFrame)
 			return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 
-		AVFrame* newFrame = av_frame_alloc();
+		newFrame = av_frame_alloc();
 		buffer.pContext = newFrame;
 		if (this->_swrConvert)
 		{
