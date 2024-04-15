@@ -22,6 +22,6 @@ if(![string]::IsNullOrWhiteSpace($nugetKey))
     pause
     Write-Host "enter to confirm"
     pause
-    $files = [System.IO.Directory]::GetFiles(".\bin\Release\")
+    $files = [System.IO.Directory]::GetFiles(".\TqkLibrary.AudioPlayer.XAudio2\bin\Release\")
     iex "nuget push $($files[0]) -ApiKey $($nugetKey) -Source https://api.nuget.org/v3/index.json"
 }
