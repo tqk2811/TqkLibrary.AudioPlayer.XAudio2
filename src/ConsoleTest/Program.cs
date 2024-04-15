@@ -9,14 +9,18 @@ while (true)
     using DebugAudioSource.AVFrame aVFrame = new DebugAudioSource.AVFrame();
     if (!debugAudioSource.ReadFrame(aVFrame))
     {
-        return;
+        throw new ApplicationException();
     }
     using XAudio2Engine engine = new XAudio2Engine();
-    using XAudio2MasterVoice masterVoice = engine.CreateMasterVoice(aVFrame.Handle);
+    using XAudio2MasterVoice masterVoice = engine.CreateMasterVoice(2, 48000);
     using XAudio2SourceVoice sourceVoice = masterVoice.CreateSourceVoice(aVFrame.Handle);
     if (!sourceVoice.Start())
     {
-        return;
+        throw new ApplicationException();
+    }
+    if (!sourceVoice.SetChannelVolumes(1.0f, 1.0f))
+    {
+        throw new ApplicationException();
     }
     QueueResult queueResult;
     do
@@ -27,32 +31,67 @@ while (true)
             switch (keyInfo.Key)
             {
                 case ConsoleKey.UpArrow:
-                    {
-                        float volume = sourceVoice.Volume + 0.1f;
-                        sourceVoice.SetVolume(volume);
-                        Console.WriteLine($"Volume: {volume}");
-                        break;
-                    }
-
                 case ConsoleKey.DownArrow:
                     {
-                        float volume = sourceVoice.Volume - 0.1f;
-                        sourceVoice.SetVolume(volume);
-                        Console.WriteLine($"Volume: {volume}");
+                        float volume = keyInfo.Key switch
+                        {
+                            ConsoleKey.UpArrow => 0.1f,
+                            ConsoleKey.DownArrow => -0.1f,
+                            _ => throw new NotSupportedException(),
+                        };
+                        volume += sourceVoice.Volume;
+                        if (sourceVoice.SetVolume(volume))
+                        {
+                            Console.WriteLine($"Volume: {volume}");
+                        }
+                        else
+                        {
+                            throw new ApplicationException();
+                        }
                         break;
                     }
 
-                case ConsoleKey.S:
+                case ConsoleKey.LeftArrow:
+                case ConsoleKey.RightArrow:
                     {
-                        Console.WriteLine($"sourceVoice.GetChannelVolumes: {string.Join(",", sourceVoice.GetChannelVolumes())}");
+                        var volumes = sourceVoice.GetChannelVolumes();
+                        if (volumes.Length >= 2)
+                        {
+                            switch (keyInfo.Key)
+                            {
+                                case ConsoleKey.LeftArrow:
+                                    volumes[0] += 0.1f;
+                                    volumes[volumes.Length - 1] -= 0.1f;
+                                    break;
+                                case ConsoleKey.RightArrow:
+                                    volumes[0] -= 0.1f;
+                                    volumes[volumes.Length - 1] += 0.1f;
+                                    break;
+                                default:
+                                    throw new NotSupportedException();
+                            }
+                            if (sourceVoice.SetChannelVolumes(volumes))
+                            {
+                                Console.WriteLine($"ChannelVolumes: {string.Join(" : ", volumes)}");
+                            }
+                            else
+                            {
+                                throw new ApplicationException();
+                            }
+                        }
                         break;
                     }
 
-                case ConsoleKey.M:
+                case ConsoleKey.R:
+                    if (!sourceVoice.SetVolume(1.0f))
                     {
-                        Console.WriteLine($"masterVoice.GetChannelVolumes: {string.Join(",", masterVoice.GetChannelVolumes())}");
-                        break;
+                        throw new ApplicationException();
                     }
+                    if (!sourceVoice.SetChannelVolumes(1.0f, 1.0f))
+                    {
+                        throw new ApplicationException();
+                    }
+                    break;
             }
         }
         do
@@ -61,7 +100,7 @@ while (true)
             switch (queueResult)
             {
                 case QueueResult.Failed:
-                    return;
+                    throw new ApplicationException();
                 case QueueResult.QueueFull:
                     await Task.Delay(100);
                     continue;
@@ -72,6 +111,3 @@ while (true)
     while (debugAudioSource.ReadFrame(aVFrame));
     queueResult = sourceVoice.QueueFrame(IntPtr.Zero, true);
 }
-Console.WriteLine("End");
-
-Console.ReadLine();
