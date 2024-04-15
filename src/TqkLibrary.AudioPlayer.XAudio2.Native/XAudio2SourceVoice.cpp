@@ -242,18 +242,16 @@ XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const AVFrame* pFrame, B
 			av_frame_copy_props(newFrame, pFrame);
 			av_frame_ref(newFrame, pFrame);
 		}
+
+		buffer.AudioBytes = av_samples_get_buffer_size(
+			newFrame->linesize,
+			newFrame->ch_layout.nb_channels,
+			newFrame->nb_samples,
+			(AVSampleFormat)newFrame->format,
+			0
+		);
+		buffer.pAudioData = newFrame->data[0];
 	}
-
-
-	buffer.AudioBytes = av_samples_get_buffer_size(
-		newFrame->linesize,
-		newFrame->ch_layout.nb_channels,
-		newFrame->nb_samples,
-		(AVSampleFormat)newFrame->format,
-		0
-	);
-	buffer.pAudioData = newFrame->data[0];
-
 
 	hr = _sourceVoice->SubmitSourceBuffer(&buffer, nullptr);
 	if (SUCCEEDED(hr))
