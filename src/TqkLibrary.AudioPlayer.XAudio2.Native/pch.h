@@ -28,10 +28,6 @@ typedef class SwrConvert SwrConvert;
 #include "XAudio2VoiceCallback.h"
 #include "SwrConvert.h"
 
-#if _DEBUG
-#include "DebugAudioSource.h"
-#endif
-
 #include "Exports.h"
 
 

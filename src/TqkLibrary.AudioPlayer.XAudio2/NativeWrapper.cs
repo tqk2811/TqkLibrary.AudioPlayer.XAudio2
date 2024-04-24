@@ -12,7 +12,6 @@ namespace TqkLibrary.AudioPlayer.XAudio2
     internal static class NativeWrapper
     {
 #if DEBUG
-
 #if NETFRAMEWORK
         static NativeWrapper()
         {
@@ -30,25 +29,6 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool SetDllDirectory(string PathName);
 #endif
-
-
-        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr DebugAudioSource_Alloc([MarshalAs(UnmanagedType.LPStr)] string filePath);
-
-        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void DebugAudioSource_Free(ref IntPtr ppAudioSource);
-
-        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool DebugAudioSource_ReadFrame(IntPtr pAudioSource, IntPtr pframe);
-
-
-        [DllImport("avutil-57.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr av_frame_alloc();
-        [DllImport("avutil-57.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void av_frame_free(ref IntPtr pAVFrame);
-
-
-
 #endif
 
         [DllImport("Kernel32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]

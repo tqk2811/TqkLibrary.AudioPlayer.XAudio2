@@ -1,13 +1,13 @@
-﻿// See https://aka.ms/new-console-template for more information
-using TqkLibrary.AudioPlayer.XAudio2;
+﻿using TqkLibrary.AudioPlayer.XAudio2;
+using TqkLibrary.AudioPlayer.FFmpegAudioReader;
 
 string filePath = ".\\01 Rainbow.mp3";
 //string filePath = "D:\\test.mp4";
 while (true)
 {
-    using DebugAudioSource debugAudioSource = new DebugAudioSource(filePath);
-    using DebugAudioSource.AVFrame aVFrame = new DebugAudioSource.AVFrame();
-    if (!debugAudioSource.ReadFrame(aVFrame))
+    using AudioSource audioSource = new AudioSource(filePath);
+    using AudioSource.AVFrame aVFrame = new AudioSource.AVFrame();
+    if (!audioSource.ReadFrame(aVFrame))
     {
         throw new ApplicationException();
     }
@@ -112,6 +112,6 @@ while (true)
         }
         while (queueResult == QueueResult.QueueFull);
     }
-    while (debugAudioSource.ReadFrame(aVFrame));
+    while (audioSource.ReadFrame(aVFrame));
     queueResult = sourceVoice.QueueFrame(IntPtr.Zero, true);
 }

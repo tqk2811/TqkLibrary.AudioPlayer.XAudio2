@@ -10,6 +10,10 @@
 		<Configurations>Debug</Configurations>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="TqkLibrary.AudioPlayer.FFmpegAudioReader" Version="1.0.0" />
+	</ItemGroup>
+
 
 	<ItemGroup>
 		<ProjectReference Include="..\TqkLibrary.AudioPlayer.XAudio2\TqkLibrary.AudioPlayer.XAudio2.csproj" />

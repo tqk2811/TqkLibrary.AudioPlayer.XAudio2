@@ -168,7 +168,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DebugAudioSource.h" />
     <ClInclude Include="Exports.h" />
     <ClInclude Include="libav.h" />
     <ClInclude Include="pch.h" />
@@ -179,7 +178,6 @@
     <ClInclude Include="XAudio2VoiceCallback.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DebugAudioSource.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Exports.cpp" />
     <ClCompile Include="pch.cpp">
