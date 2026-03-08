@@ -1,11 +1,37 @@
 ﻿using TqkLibrary.AudioPlayer.XAudio2;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-// Simple sine wave generator for testing
-const int sampleRate = 48000;
-const int channels = 2;
-const int bitsPerSample = 16;
-const double frequency = 440.0; // A4 note
-const int samplesPerBuffer = 4800; // 100ms per buffer
+string filePath = "01 Rainbow.mp3";
+if (!File.Exists(filePath))
+{
+    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "01 Rainbow.mp3");
+}
+#if NETFRAMEWORK
+string ffmpegPath = AppDomain.CurrentDomain.BaseDirectory;
+#else
+string ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "runtimes", Environment.Is64BitProcess ? "win-x64" : "win-x86", "native");
+#endif
+string ffmpegExe = Path.Combine(ffmpegPath, "ffmpeg.exe");
+filePath = Path.GetFullPath(filePath);
+if (!File.Exists(filePath))
+{
+    Console.Error.WriteLine($"Error: File not found: {filePath}");
+    return;
+}
+
+Console.WriteLine($"Using ffmpeg from: {ffmpegExe}");
+Console.WriteLine($"Opening file: {filePath}");
+
+// We'll force ffmpeg to output specific PCM format
+int channels = 2;
+int sampleRate = 48000;
+int bitsPerSample = 16; 
+
+Console.WriteLine($"Target Info: {channels} channels, {sampleRate}Hz (forced via ffmpeg)");
 
 using XAudio2Engine engine = new XAudio2Engine();
 using XAudio2MasterVoice masterVoice = engine.CreateMasterVoice(channels, sampleRate);
@@ -16,147 +42,120 @@ if (!sourceVoice.Start())
     throw new ApplicationException("Failed to start source voice");
 }
 
-if (!sourceVoice.SetChannelVolumes(1.0f, 1.0f))
-{
-    throw new ApplicationException("Failed to set channel volumes");
-}
-
-Console.WriteLine("Playing sine wave... Press 'Q' to quit.");
+Console.WriteLine("Playing... Press 'Q' to quit.");
 Console.WriteLine("Up/Down: Volume, Left/Right: Channel Balance, R: Reset");
 
-int sampleIndex = 0;
+CancellationTokenSource cts = new CancellationTokenSource();
 
-while (true)
+// Use a direct approach with Process to stream data block by block.
+var processStartInfo = new ProcessStartInfo
+{
+    FileName = ffmpegExe,
+    Arguments = $"-i \"{filePath}\" -f s16le -acodec pcm_s16le -ar {sampleRate} -ac {channels} pipe:1",
+    RedirectStandardOutput = true,
+    RedirectStandardError = true,
+    UseShellExecute = false,
+    CreateNoWindow = true
+};
+
+using var process = Process.Start(processStartInfo);
+if (process == null) throw new ApplicationException("Failed to start ffmpeg process");
+
+// Capture ffmpeg logs to Console.Error so the user can see them
+process.ErrorDataReceived += (s, e) => { if (e.Data != null) Console.Error.WriteLine($"FFMpeg: {e.Data}"); };
+process.BeginErrorReadLine();
+
+byte[] buffer = new byte[sampleRate * channels * (bitsPerSample / 8) / 10]; // 100ms buffer
+
+var readTask = Task.Run(async () =>
+{
+    try 
+    {
+        using var stdout = process.StandardOutput.BaseStream;
+        while (!cts.Token.IsCancellationRequested)
+        {
+            int bytesToRead = buffer.Length;
+            int totalRead = 0;
+            while (totalRead < bytesToRead)
+            {
+                int read = await stdout.ReadAsync(buffer, totalRead, bytesToRead - totalRead, cts.Token);
+                if (read == 0) 
+                    break;
+                totalRead += read;
+            }
+
+            if (totalRead == 0) 
+                break;
+
+            byte[] dataToQueue = new byte[totalRead];
+            Array.Copy(buffer, 0, dataToQueue, 0, totalRead);
+
+            QueueResult queueResult;
+            do
+            {
+                queueResult = sourceVoice.QueueFrame(dataToQueue);
+                if (queueResult == QueueResult.QueueFull)
+                {
+                    await Task.Delay(10, cts.Token);
+                }
+            } while (queueResult == QueueResult.QueueFull && !cts.Token.IsCancellationRequested);
+
+            if (queueResult == QueueResult.Failed)
+            {
+                Console.WriteLine("QueueFrame Failed");
+                break;
+            }
+        }
+        
+        sourceVoice.QueueFrame(Array.Empty<byte>(), true);
+        Console.WriteLine("Playback finished.");
+    }
+    catch (OperationCanceledException) { }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error in playback: {ex.Message}");
+    }
+});
+
+while (!readTask.IsCompleted)
 {
     if (Console.KeyAvailable)
     {
         var keyInfo = Console.ReadKey(true);
+        if (keyInfo.Key == ConsoleKey.Q)
+        {
+            cts.Cancel();
+            try { process.Kill(); } catch { }
+            break;
+        }
+        
         switch (keyInfo.Key)
         {
-            case ConsoleKey.Q:
-                // Send EOF
-                sourceVoice.QueueFrame(Array.Empty<byte>(), true);
-                return;
-
             case ConsoleKey.UpArrow:
             case ConsoleKey.DownArrow:
-                {
-                    float volume = keyInfo.Key switch
-                    {
-                        ConsoleKey.UpArrow => 0.1f,
-                        ConsoleKey.DownArrow => -0.1f,
-                        _ => throw new NotSupportedException(),
-                    };
-                    volume += sourceVoice.Volume;
-                    if (sourceVoice.SetVolume(volume))
-                    {
-                        Console.WriteLine($"Volume: {volume}");
-                    }
-                    else
-                    {
-                        throw new ApplicationException();
-                    }
-                    break;
-                }
+                float vol = sourceVoice.Volume + (keyInfo.Key == ConsoleKey.UpArrow ? 0.1f : -0.1f);
+                if (sourceVoice.SetVolume(vol)) Console.WriteLine($"Volume: {vol:F1}");
+                break;
 
             case ConsoleKey.LeftArrow:
             case ConsoleKey.RightArrow:
+                var currentVolumes = sourceVoice.GetChannelVolumes();
+                if (currentVolumes.Length >= 2)
                 {
-                    var volumes = sourceVoice.GetChannelVolumes();
-                    if (volumes.Length >= 2)
-                    {
-                        switch (keyInfo.Key)
-                        {
-                            case ConsoleKey.LeftArrow:
-                                volumes[0] += 0.1f;
-                                volumes[volumes.Length - 1] -= 0.1f;
-                                break;
-                            case ConsoleKey.RightArrow:
-                                volumes[0] -= 0.1f;
-                                volumes[volumes.Length - 1] += 0.1f;
-                                break;
-                            default:
-                                throw new NotSupportedException();
-                        }
-                        if (sourceVoice.SetChannelVolumes(volumes))
-                        {
-                            Console.WriteLine($"ChannelVolumes: {string.Join(" : ", volumes)}");
-                        }
-                        else
-                        {
-                            throw new ApplicationException();
-                        }
-                    }
-                    break;
+                    if (keyInfo.Key == ConsoleKey.LeftArrow) { currentVolumes[0] += 0.1f; currentVolumes[1] -= 0.1f; }
+                    else { currentVolumes[0] -= 0.1f; currentVolumes[1] += 0.1f; }
+                    if (sourceVoice.SetChannelVolumes(currentVolumes)) Console.WriteLine($"Balance: {currentVolumes[0]:F1} : {currentVolumes[1]:F1}");
                 }
+                break;
 
             case ConsoleKey.R:
-                {
-                    if (!sourceVoice.SetVolume(1.0f))
-                    {
-                        throw new ApplicationException();
-                    }
-                    float[] cvols = sourceVoice.GetChannelVolumes();
-                    for (int i = 0; i < cvols.Length; i++) cvols[i] = 1.0f;
-                    if (!sourceVoice.SetChannelVolumes(cvols))
-                    {
-                        throw new ApplicationException();
-                    }
-                    Console.WriteLine("Reset volume and channel balance");
-                    break;
-                }
+                sourceVoice.SetVolume(1.0f);
+                sourceVoice.SetChannelVolumes(1.0f, 1.0f);
+                Console.WriteLine("Reset Audio Settings");
+                break;
         }
     }
-
-    // Generate a buffer of sine wave PCM data
-    byte[] audioData = GenerateSineWave(ref sampleIndex, samplesPerBuffer, sampleRate, frequency, channels, bitsPerSample);
-
-    QueueResult queueResult;
-    do
-    {
-        queueResult = sourceVoice.QueueFrame(audioData);
-        switch (queueResult)
-        {
-            case QueueResult.Failed:
-                throw new ApplicationException("QueueFrame failed");
-            case QueueResult.QueueFull:
-                await Task.Delay(10);
-                continue;
-        }
-    }
-    while (queueResult == QueueResult.QueueFull);
+    await Task.Delay(100);
 }
 
-static byte[] GenerateSineWave(ref int sampleIndex, int sampleCount, int sampleRate, double frequency, int channels, int bitsPerSample)
-{
-    int bytesPerSample = bitsPerSample / 8;
-    byte[] buffer = new byte[sampleCount * channels * bytesPerSample];
-    int offset = 0;
-
-    for (int i = 0; i < sampleCount; i++)
-    {
-        double t = (double)sampleIndex / sampleRate;
-        double value = Math.Sin(2.0 * Math.PI * frequency * t);
-        sampleIndex++;
-
-        for (int ch = 0; ch < channels; ch++)
-        {
-            switch (bitsPerSample)
-            {
-                case 16:
-                    short sample16 = (short)(value * short.MaxValue);
-                    BitConverter.GetBytes(sample16).CopyTo(buffer, offset);
-                    break;
-                case 32:
-                    int sample32 = (int)(value * int.MaxValue);
-                    BitConverter.GetBytes(sample32).CopyTo(buffer, offset);
-                    break;
-                default:
-                    throw new NotSupportedException($"Unsupported bits per sample: {bitsPerSample}");
-            }
-            offset += bytesPerSample;
-        }
-    }
-
-    return buffer;
-}
+await readTask;
