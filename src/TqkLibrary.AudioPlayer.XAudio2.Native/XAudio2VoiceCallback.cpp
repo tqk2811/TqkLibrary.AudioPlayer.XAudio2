@@ -21,13 +21,13 @@ void XAudio2VoiceCallback::OnBufferStart(void* pBufferContext) {
 
 }
 void XAudio2VoiceCallback::OnBufferEnd(void* pBufferContext) {
-	AVFrame* frame = (AVFrame*)pBufferContext;
-	av_frame_free(&frame);
+	if (pBufferContext)
+		free(pBufferContext);
 }
 void XAudio2VoiceCallback::OnLoopEnd(void* pBufferContext) {
 
 }
 void XAudio2VoiceCallback::OnVoiceError(void* pBufferContext, HRESULT Error) {
-	AVFrame* frame = (AVFrame*)pBufferContext;
-	av_frame_free(&frame);
+	if (pBufferContext)
+		free(pBufferContext);
 }

@@ -13,7 +13,8 @@
 #include <wrl/client.h>
 #include <xaudio2.h>
 #include <xaudio2fx.h>
-#include "libav.h"
+#include <stdlib.h>
+#include <string.h>
 using namespace Microsoft::WRL;
 
 typedef class XAudio2Engine XAudio2Engine;
@@ -21,12 +22,10 @@ typedef class XAudio2MasterVoice XAudio2MasterVoice;
 typedef class XAudio2SourceVoice XAudio2SourceVoice;
 typedef enum XAudio2SourceQueueResult;
 typedef class XAudio2VoiceCallback XAudio2VoiceCallback;
-typedef class SwrConvert SwrConvert;
 #include "XAudio2Engine.h"
 #include "XAudio2MasterVoice.h"
 #include "XAudio2SourceVoice.h"
 #include "XAudio2VoiceCallback.h"
-#include "SwrConvert.h"
 
 #include "Exports.h"
 

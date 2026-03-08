@@ -17,10 +17,10 @@ namespace TqkLibrary.AudioPlayer.XAudio2
                 return volume;
             }
         }
-        internal XAudio2SourceVoice(XAudio2MasterVoice masterVoice, IntPtr pAVFrame)
+        internal XAudio2SourceVoice(XAudio2MasterVoice masterVoice, int channels, int sampleRate, int bitsPerSample, bool isFloat)
         {
             _masterVoice = masterVoice ?? throw new ArgumentNullException(nameof(masterVoice));
-            _pointer = NativeWrapper.XAudio2SourceVoice_Alloc(masterVoice.Pointer, pAVFrame);
+            _pointer = NativeWrapper.XAudio2SourceVoice_Alloc(masterVoice.Pointer, channels, sampleRate, bitsPerSample, isFloat);
             if (_pointer == IntPtr.Zero)
                 throw new ApplicationException($"Create and load {nameof(XAudio2SourceVoice)} failed (last error : {NativeWrapper.GetLastError()})");
         }
@@ -89,14 +89,19 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         }
 
         /// <summary>
-        /// Clone or Convert this frame and put into the queue
+        /// Queue raw PCM audio data for playback
         /// </summary>
-        /// <param name="avFrame">Note: must realse your frame after funtion</param>
-        /// <param name="isEof"></param>
+        /// <param name="audioData">Raw PCM audio data bytes</param>
+        /// <param name="isEof">Set to true to mark end of stream</param>
         /// <returns></returns>
-        public QueueResult QueueFrame(IntPtr pAVFrame, bool isEof = false)
+        public QueueResult QueueFrame(byte[] audioData, bool isEof = false)
         {
-            return NativeWrapper.XAudio2SourceVoice_QueueFrame(_pointer, pAVFrame, isEof);
+            return NativeWrapper.XAudio2SourceVoice_QueueFrame(
+                _pointer,
+                audioData,
+                audioData != null ? (UInt32)audioData.Length : 0,
+                isEof
+            );
         }
 
         /// <summary>

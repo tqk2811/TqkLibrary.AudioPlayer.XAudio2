@@ -13,7 +13,7 @@ public:
 	XAudio2SourceVoice(const XAudio2MasterVoice* masterVoice);
 	~XAudio2SourceVoice();
 
-	BOOL Init(const AVFrame* pFrame);
+	BOOL Init(int channels, int sampleRate, int bitsPerSample, BOOL isFloat);
 
 	BOOL Start();
 	BOOL Stop(UINT32 flag = 0);//0 or XAUDIO2_PLAY_TAILS
@@ -27,7 +27,7 @@ public:
 	VOID GetVoiceDetails(XAUDIO2_VOICE_DETAILS* pVoiceDetails);
 	VOID GetState(XAUDIO2_VOICE_STATE* pState, UINT32 flag);
 
-	XAudio2SourceQueueResult QueueFrame(const AVFrame* pFrame, BOOL isEof = FALSE);
+	XAudio2SourceQueueResult QueueFrame(const BYTE* pData, UINT32 dataLength, BOOL isEof = FALSE);
 	BOOL FlushSourceBuffers();
 
 
@@ -36,7 +36,5 @@ private:
 	IXAudio2MasteringVoice* _masterVoice{ nullptr };
 	IXAudio2SourceVoice* _sourceVoice{ nullptr };
 	XAudio2VoiceCallback* _callback{ nullptr };
-	SwrConvert* _swrConvert{ nullptr };
-	AVSampleFormat _outFormat{ AV_SAMPLE_FMT_NONE };
 };
 #endif

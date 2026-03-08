@@ -49,9 +49,6 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         internal static extern IntPtr XAudio2MasterVoice_Alloc(IntPtr pEngine, int nb_channels, int sample_rate);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr XAudio2MasterVoice_Alloc_AVFrame(IntPtr pEngine, IntPtr pAVFrame);
-
-        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void XAudio2MasterVoice_Free(ref IntPtr pMasterVoice);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
@@ -63,9 +60,8 @@ namespace TqkLibrary.AudioPlayer.XAudio2
 
 
 
-
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr XAudio2SourceVoice_Alloc(IntPtr pMasterVoice, IntPtr pAVFrame);
+        internal static extern IntPtr XAudio2SourceVoice_Alloc(IntPtr pMasterVoice, int channels, int sampleRate, int bitsPerSample, bool isFloat);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void XAudio2SourceVoice_Free(ref IntPtr pSourceVoice);
@@ -95,7 +91,7 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         internal static extern void XAudio2SourceVoice_GetState(IntPtr pSourceVoice, ref XAUDIO2_VOICE_STATE state, UInt32 flag);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern QueueResult XAudio2SourceVoice_QueueFrame(IntPtr pSourceVoice, IntPtr pAVFrame, bool isEof);
+        internal static extern QueueResult XAudio2SourceVoice_QueueFrame(IntPtr pSourceVoice, [MarshalAs(UnmanagedType.LPArray)] byte[] pData, UInt32 dataLength, bool isEof);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool XAudio2SourceVoice_FlushSourceBuffers(IntPtr pSourceVoice);

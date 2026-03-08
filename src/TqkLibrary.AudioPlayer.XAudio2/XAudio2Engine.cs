@@ -33,14 +33,11 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         }
 
         /// <summary>
-        /// 
+        /// Create a master voice with specified audio format
         /// </summary>
-        /// <param name="avFrame">FFmpeg AVFrame</param>
+        /// <param name="nb_channels">Number of channels</param>
+        /// <param name="sample_rate">Sample rate in Hz</param>
         /// <returns></returns>
-        public XAudio2MasterVoice CreateMasterVoice(IntPtr avFrame)
-        {
-            return new XAudio2MasterVoice(this, avFrame);
-        }
         public XAudio2MasterVoice CreateMasterVoice(int nb_channels, int sample_rate)
         {
             return new XAudio2MasterVoice(this, nb_channels, sample_rate);

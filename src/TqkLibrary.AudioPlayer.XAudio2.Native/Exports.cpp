@@ -43,13 +43,6 @@ XAudio2MasterVoice* XAudio2MasterVoice_Alloc(const XAudio2Engine* pEngine, int n
 		return nullptr;
 	}
 }
-XAudio2MasterVoice* XAudio2MasterVoice_Alloc_AVFrame(const XAudio2Engine* pEngine, const AVFrame* pFrame) {
-	SetLastError(0);
-	if (!pEngine || !pFrame)
-		return nullptr;
-
-	return XAudio2MasterVoice_Alloc(pEngine, pFrame->ch_layout.nb_channels, pFrame->sample_rate);
-}
 void XAudio2MasterVoice_Free(XAudio2MasterVoice** ppMasterVoice)
 {
 	if (ppMasterVoice)
@@ -76,13 +69,13 @@ VOID XAudio2MasterVoice_GetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT* pVolu
 }
 
 
-XAudio2SourceVoice* XAudio2SourceVoice_Alloc(const XAudio2MasterVoice* pMasterVoice, const AVFrame* pFrame) {
+XAudio2SourceVoice* XAudio2SourceVoice_Alloc(const XAudio2MasterVoice* pMasterVoice, int channels, int sampleRate, int bitsPerSample, BOOL isFloat) {
 	SetLastError(0);
-	if (!pMasterVoice || !pFrame)
+	if (!pMasterVoice)
 		return nullptr;
 
 	XAudio2SourceVoice* pSourceVoice = new XAudio2SourceVoice(pMasterVoice);
-	if (pSourceVoice->Init(pFrame))
+	if (pSourceVoice->Init(channels, sampleRate, bitsPerSample, isFloat))
 	{
 		return pSourceVoice;
 	}
@@ -151,12 +144,12 @@ VOID XAudio2SourceVoice_GetState(XAudio2SourceVoice* pSourceVoice, XAUDIO2_VOICE
 		return;
 	pSourceVoice->GetState(pState, flag);
 }
-XAudio2SourceQueueResult XAudio2SourceVoice_QueueFrame(XAudio2SourceVoice* pSourceVoice, const AVFrame* pFrame, BOOL isEof) {
+XAudio2SourceQueueResult XAudio2SourceVoice_QueueFrame(XAudio2SourceVoice* pSourceVoice, const BYTE* pData, UINT32 dataLength, BOOL isEof) {
 	SetLastError(0);
 	if (!pSourceVoice)
 		return XAudio2SourceQueueResult::XAudio2SourceQueue_Failed;
 
-	return pSourceVoice->QueueFrame(pFrame, isEof);
+	return pSourceVoice->QueueFrame(pData, dataLength, isEof);
 }
 BOOL XAudio2SourceVoice_FlushSourceBuffers(XAudio2SourceVoice* pSourceVoice) {
 	SetLastError(0);
@@ -164,38 +157,3 @@ BOOL XAudio2SourceVoice_FlushSourceBuffers(XAudio2SourceVoice* pSourceVoice) {
 		return FALSE;
 	return pSourceVoice->FlushSourceBuffers();
 }
-
-
-
-#if _DEBUG
-DebugAudioSource* DebugAudioSource_Alloc(LPSTR filePath) {
-	SetLastError(0);
-	DebugAudioSource* pAudioSource = new DebugAudioSource();
-	if (pAudioSource->Init(filePath))
-	{
-		return pAudioSource;
-	}
-	else
-	{
-		delete pAudioSource;
-		return nullptr;
-	}
-}
-VOID DebugAudioSource_Free(DebugAudioSource** ppAudioSource) {
-	if (ppAudioSource)
-	{
-		DebugAudioSource* pAudioSource = *ppAudioSource;
-		if (pAudioSource)
-		{
-			delete pAudioSource;
-			*ppAudioSource = nullptr;
-		}
-	}
-}
-BOOL DebugAudioSource_ReadFrame(DebugAudioSource* pAudioSource, AVFrame* pframe) {
-	SetLastError(0);
-	if (!pAudioSource)
-		return FALSE;
-	return pAudioSource->ReadFrame(pframe);
-}
-#endif

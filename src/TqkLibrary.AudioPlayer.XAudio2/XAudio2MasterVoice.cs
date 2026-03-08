@@ -20,13 +20,6 @@ namespace TqkLibrary.AudioPlayer.XAudio2
                 return volume;
             }
         }
-        internal XAudio2MasterVoice(XAudio2Engine engine, IntPtr pAVFrame)
-        {
-            this._engine = engine ?? throw new ArgumentNullException(nameof(engine));
-            _pointer = NativeWrapper.XAudio2MasterVoice_Alloc_AVFrame(engine.Pointer, pAVFrame);
-            if (_pointer == IntPtr.Zero)
-                throw new ApplicationException($"Create and load {nameof(XAudio2MasterVoice)} failed (last error : {NativeWrapper.GetLastError()})");
-        }
         internal XAudio2MasterVoice(XAudio2Engine engine, int nb_channels, int sample_rate)
         {
             this._engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -56,9 +49,17 @@ namespace TqkLibrary.AudioPlayer.XAudio2
             return NativeWrapper.XAudio2MasterVoice_SetVolume(_pointer, volume);
         }
 
-        public XAudio2SourceVoice CreateSourceVoice(IntPtr pAVFrame)
+        /// <summary>
+        /// Create a source voice with specified PCM audio format
+        /// </summary>
+        /// <param name="channels">Number of channels</param>
+        /// <param name="sampleRate">Sample rate in Hz</param>
+        /// <param name="bitsPerSample">Bits per sample (8, 16, 32, 64)</param>
+        /// <param name="isFloat">True for IEEE float format, false for PCM integer</param>
+        /// <returns></returns>
+        public XAudio2SourceVoice CreateSourceVoice(int channels, int sampleRate, int bitsPerSample, bool isFloat)
         {
-            return new XAudio2SourceVoice(this, pAVFrame);
+            return new XAudio2SourceVoice(this, channels, sampleRate, bitsPerSample, isFloat);
         }
     }
 }
