@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TqkLibrary.AudioPlayer.XAudio2
+namespace TqkLibrary.AudioPlayer.XAudio2.Structs
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct XAUDIO2_VOICE_STATE

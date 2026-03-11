@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using TqkLibrary.AudioPlayer.XAudio2.Structs;
 
 namespace TqkLibrary.AudioPlayer.XAudio2
 {

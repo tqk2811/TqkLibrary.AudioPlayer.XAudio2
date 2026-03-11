@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TqkLibrary.AudioPlayer.XAudio2.Structs;
 
 namespace TqkLibrary.AudioPlayer.XAudio2
 {
@@ -38,9 +39,22 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         /// <param name="nb_channels">Number of channels</param>
         /// <param name="sample_rate">Sample rate in Hz</param>
         /// <returns></returns>
-        public XAudio2MasterVoice CreateMasterVoice(int nb_channels, int sample_rate)
+        public XAudio2MasterVoice CreateMasterVoice(int nb_channels, int sample_rate, string? deviceId = null)
         {
-            return new XAudio2MasterVoice(this, nb_channels, sample_rate);
+            return new XAudio2MasterVoice(this, nb_channels, sample_rate, deviceId);
+        }
+
+        public static IEnumerable<AudioDeviceInfo> GetAudioDevices()
+        {
+            int count = NativeWrapper.XAudio2_GetAudioDeviceCount();
+            for (int i = 0; i < count; i++)
+            {
+                var info = new AudioDeviceInfo();
+                if (NativeWrapper.XAudio2_GetAudioDeviceInfo(i, ref info))
+                {
+                    yield return info;
+                }
+            }
         }
     }
 }

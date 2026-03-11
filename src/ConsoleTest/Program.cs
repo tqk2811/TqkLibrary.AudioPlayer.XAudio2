@@ -1,4 +1,4 @@
-﻿using TqkLibrary.AudioPlayer.XAudio2;
+using TqkLibrary.AudioPlayer.XAudio2;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -29,12 +29,25 @@ Console.WriteLine($"Opening file: {filePath}");
 // We'll force ffmpeg to output specific PCM format
 int channels = 2;
 int sampleRate = 48000;
-int bitsPerSample = 16; 
+int bitsPerSample = 16;
 
 Console.WriteLine($"Target Info: {channels} channels, {sampleRate}Hz (forced via ffmpeg)");
 
+var devices = XAudio2Engine.GetAudioDevices().ToList();
+Console.WriteLine("Available Output Devices:");
+for (int i = 0; i < devices.Count; i++)
+{
+    Console.WriteLine($"[{i}] {devices[i].DeviceName}");
+}
+Console.Write("Select device: ");
+string? selectedDeviceId = null;
+if (int.TryParse(Console.ReadLine()?.Trim(), out int parsedIndex))
+{
+    selectedDeviceId = devices.Skip(parsedIndex).FirstOrDefault().DeviceId;
+}
+
 using XAudio2Engine engine = new XAudio2Engine();
-using XAudio2MasterVoice masterVoice = engine.CreateMasterVoice(channels, sampleRate);
+using XAudio2MasterVoice masterVoice = engine.CreateMasterVoice(channels, sampleRate, selectedDeviceId);
 using XAudio2SourceVoice sourceVoice = masterVoice.CreateSourceVoice(channels, sampleRate, bitsPerSample, false);
 
 if (!sourceVoice.Start())
@@ -69,7 +82,7 @@ byte[] buffer = new byte[sampleRate * channels * (bitsPerSample / 8) / 10]; // 1
 
 var readTask = Task.Run(async () =>
 {
-    try 
+    try
     {
         using var stdout = process.StandardOutput.BaseStream;
         while (!cts.Token.IsCancellationRequested)
@@ -79,12 +92,12 @@ var readTask = Task.Run(async () =>
             while (totalRead < bytesToRead)
             {
                 int read = await stdout.ReadAsync(buffer, totalRead, bytesToRead - totalRead, cts.Token);
-                if (read == 0) 
+                if (read == 0)
                     break;
                 totalRead += read;
             }
 
-            if (totalRead == 0) 
+            if (totalRead == 0)
                 break;
 
             byte[] dataToQueue = new byte[totalRead];
@@ -106,7 +119,7 @@ var readTask = Task.Run(async () =>
                 break;
             }
         }
-        
+
         sourceVoice.QueueFrame(Array.Empty<byte>(), true);
         Console.WriteLine("Playback finished.");
     }
@@ -128,7 +141,7 @@ while (!readTask.IsCompleted)
             try { process.Kill(); } catch { }
             break;
         }
-        
+
         switch (keyInfo.Key)
         {
             case ConsoleKey.UpArrow:

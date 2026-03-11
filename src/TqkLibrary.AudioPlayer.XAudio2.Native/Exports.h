@@ -1,10 +1,18 @@
 #ifndef _H_TqkLibraryAudioPlayerXAudio2Native_H_
 #define _H_TqkLibraryAudioPlayerXAudio2Native_H_
 
+struct AudioDeviceInfo {
+	WCHAR szDeviceId[256];
+	WCHAR szDeviceName[256];
+};
+
+TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS int XAudio2_GetAudioDeviceCount();
+TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS BOOL XAudio2_GetAudioDeviceInfo(int index, AudioDeviceInfo* info);
+
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS XAudio2Engine* XAudio2Engine_Alloc();
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS void XAudio2Engine_Free(XAudio2Engine** ppEngine);
 
-TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS XAudio2MasterVoice* XAudio2MasterVoice_Alloc(const XAudio2Engine* pEngine, int nb_channels, int sample_rate);
+TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS XAudio2MasterVoice* XAudio2MasterVoice_Alloc(const XAudio2Engine* pEngine, LPCWSTR szDeviceId, int nb_channels, int sample_rate);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS void XAudio2MasterVoice_Free(XAudio2MasterVoice** ppMasterVoice);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS BOOL XAudio2MasterVoice_SetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT volume);
 TQKLIBRARYAUDIOPLAYERXAUDIO2NATIVEEXPORTS VOID XAudio2MasterVoice_GetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT* pVolume);

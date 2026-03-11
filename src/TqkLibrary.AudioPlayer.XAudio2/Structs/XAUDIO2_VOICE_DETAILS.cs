@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace TqkLibrary.AudioPlayer.XAudio2
+namespace TqkLibrary.AudioPlayer.XAudio2.Structs
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct XAUDIO2_VOICE_DETAILS

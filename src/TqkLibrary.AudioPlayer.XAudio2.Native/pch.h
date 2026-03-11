@@ -15,6 +15,9 @@
 #include <xaudio2fx.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mmdeviceapi.h>
+#include <Functiondiscoverykeys_devpkey.h>
+#pragma comment(lib, "mmdevapi.lib")
 using namespace Microsoft::WRL;
 
 typedef class XAudio2Engine XAudio2Engine;

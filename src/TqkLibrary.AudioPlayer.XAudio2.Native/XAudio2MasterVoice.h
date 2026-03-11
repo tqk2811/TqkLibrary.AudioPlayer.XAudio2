@@ -7,7 +7,7 @@ public:
 	XAudio2MasterVoice(const XAudio2Engine* engine);
 	~XAudio2MasterVoice();
 
-	BOOL Init(int nb_channels, int sample_rate);
+	BOOL Init(LPCWSTR szDeviceId, int nb_channels, int sample_rate);
 
 	BOOL SetVolume(FLOAT volume);
 	VOID GetVolume(FLOAT* pVolume);

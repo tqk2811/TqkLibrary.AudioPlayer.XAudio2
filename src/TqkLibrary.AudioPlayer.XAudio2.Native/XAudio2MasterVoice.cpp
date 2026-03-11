@@ -16,7 +16,7 @@ XAudio2MasterVoice::~XAudio2MasterVoice() {
 	}
 }
 
-BOOL XAudio2MasterVoice::Init(int nb_channels, int sample_rate) {
+BOOL XAudio2MasterVoice::Init(LPCWSTR szDeviceId, int nb_channels, int sample_rate) {
 	SetLastError(0);
 	if (!this->_xaudio2)
 		return FALSE;
@@ -28,7 +28,11 @@ BOOL XAudio2MasterVoice::Init(int nb_channels, int sample_rate) {
 	hr = this->_xaudio2->CreateMasteringVoice(
 		&this->_masterVoice,
 		nb_channels,
-		sample_rate
+		sample_rate,
+		0,
+		szDeviceId,
+		nullptr,
+		AudioCategory_GameEffects
 	); 
 	SetLastError(hr);
 

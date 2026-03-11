@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using TqkLibrary.AudioPlayer.XAudio2.Structs;
 
 namespace TqkLibrary.AudioPlayer.XAudio2
 {
@@ -46,7 +47,13 @@ namespace TqkLibrary.AudioPlayer.XAudio2
 
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr XAudio2MasterVoice_Alloc(IntPtr pEngine, int nb_channels, int sample_rate);
+        internal static extern int XAudio2_GetAudioDeviceCount();
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool XAudio2_GetAudioDeviceInfo(int index, ref AudioDeviceInfo info);
+
+        [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr XAudio2MasterVoice_Alloc(IntPtr pEngine, string? szDeviceId, int nb_channels, int sample_rate);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void XAudio2MasterVoice_Free(ref IntPtr pMasterVoice);

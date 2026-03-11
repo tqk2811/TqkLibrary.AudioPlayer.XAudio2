@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,10 +20,10 @@ namespace TqkLibrary.AudioPlayer.XAudio2
                 return volume;
             }
         }
-        internal XAudio2MasterVoice(XAudio2Engine engine, int nb_channels, int sample_rate)
+        internal XAudio2MasterVoice(XAudio2Engine engine, int nb_channels, int sample_rate, string? deviceId = null)
         {
             this._engine = engine ?? throw new ArgumentNullException(nameof(engine));
-            _pointer = NativeWrapper.XAudio2MasterVoice_Alloc(engine.Pointer, nb_channels, sample_rate);
+            _pointer = NativeWrapper.XAudio2MasterVoice_Alloc(engine.Pointer, deviceId, nb_channels, sample_rate);
             if (_pointer == IntPtr.Zero)
                 throw new ApplicationException($"Create and load {nameof(XAudio2MasterVoice)} failed (last error : {NativeWrapper.GetLastError()})");
         }
