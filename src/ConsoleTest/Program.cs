@@ -48,7 +48,7 @@ if (int.TryParse(Console.ReadLine()?.Trim(), out int parsedIndex))
 
 using XAudio2Engine engine = new XAudio2Engine();
 using XAudio2MasterVoice masterVoice = engine.CreateMasterVoice(channels, sampleRate, selectedDeviceId);
-using XAudio2SourceVoice sourceVoice = masterVoice.CreateSourceVoice(channels, sampleRate, bitsPerSample, false);
+using XAudio2SourceVoice sourceVoice = masterVoice.CreateSourceVoice(channels, sampleRate, bitsPerSample, WaveFormatTag.WAVE_FORMAT_PCM);
 
 if (!sourceVoice.Start())
 {

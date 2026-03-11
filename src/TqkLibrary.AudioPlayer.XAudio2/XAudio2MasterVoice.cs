@@ -59,11 +59,11 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         /// <param name="channels">Number of channels</param>
         /// <param name="sampleRate">Sample rate in Hz</param>
         /// <param name="bitsPerSample">Bits per sample (8, 16, 32, 64)</param>
-        /// <param name="isFloat">True for IEEE float format, false for PCM integer</param>
+        /// <param name="wFormatTag">WAVE format tag (e.g. WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT)</param>
         /// <returns></returns>
-        public XAudio2SourceVoice CreateSourceVoice(int channels, int sampleRate, int bitsPerSample, bool isFloat)
+        public XAudio2SourceVoice CreateSourceVoice(int channels, int sampleRate, int bitsPerSample, WaveFormatTag wFormatTag)
         {
-            return new XAudio2SourceVoice(this, channels, sampleRate, bitsPerSample, isFloat);
+            return new XAudio2SourceVoice(this, channels, sampleRate, bitsPerSample, wFormatTag);
         }
     }
 }

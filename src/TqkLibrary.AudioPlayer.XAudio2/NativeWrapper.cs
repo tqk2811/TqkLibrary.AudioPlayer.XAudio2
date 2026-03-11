@@ -68,7 +68,7 @@ namespace TqkLibrary.AudioPlayer.XAudio2
 
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr XAudio2SourceVoice_Alloc(IntPtr pMasterVoice, int channels, int sampleRate, int bitsPerSample, bool isFloat);
+        internal static extern IntPtr XAudio2SourceVoice_Alloc(IntPtr pMasterVoice, int channels, int sampleRate, int bitsPerSample, WaveFormatTag wFormatTag);
 
         [DllImport("TqkLibrary.AudioPlayer.XAudio2.Native.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void XAudio2SourceVoice_Free(ref IntPtr pSourceVoice);

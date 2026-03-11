@@ -126,13 +126,13 @@ VOID XAudio2MasterVoice_GetVolume(XAudio2MasterVoice* pMasterVoice, FLOAT* pVolu
 }
 
 
-XAudio2SourceVoice* XAudio2SourceVoice_Alloc(const XAudio2MasterVoice* pMasterVoice, int channels, int sampleRate, int bitsPerSample, BOOL isFloat) {
+XAudio2SourceVoice* XAudio2SourceVoice_Alloc(const XAudio2MasterVoice* pMasterVoice, int channels, int sampleRate, int bitsPerSample, WORD wFormatTag) {
 	SetLastError(0);
 	if (!pMasterVoice)
 		return nullptr;
 
 	XAudio2SourceVoice* pSourceVoice = new XAudio2SourceVoice(pMasterVoice);
-	if (pSourceVoice->Init(channels, sampleRate, bitsPerSample, isFloat))
+	if (pSourceVoice->Init(channels, sampleRate, bitsPerSample, wFormatTag))
 	{
 		return pSourceVoice;
 	}

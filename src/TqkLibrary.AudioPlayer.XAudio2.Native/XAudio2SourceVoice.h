@@ -13,7 +13,7 @@ public:
 	XAudio2SourceVoice(const XAudio2MasterVoice* masterVoice);
 	~XAudio2SourceVoice();
 
-	BOOL Init(int channels, int sampleRate, int bitsPerSample, BOOL isFloat);
+	BOOL Init(int channels, int sampleRate, int bitsPerSample, WORD wFormatTag);
 
 	BOOL Start();
 	BOOL Stop(UINT32 flag = 0);//0 or XAUDIO2_PLAY_TAILS

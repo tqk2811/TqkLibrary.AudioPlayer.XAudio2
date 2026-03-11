@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using TqkLibrary.AudioPlayer.XAudio2.Structs;
 
@@ -22,10 +22,10 @@ namespace TqkLibrary.AudioPlayer.XAudio2
                 NativeWrapper.XAudio2SourceVoice_SetVolume(_pointer, value);
             }
         }
-        internal XAudio2SourceVoice(XAudio2MasterVoice masterVoice, int channels, int sampleRate, int bitsPerSample, bool isFloat)
+        internal XAudio2SourceVoice(XAudio2MasterVoice masterVoice, int channels, int sampleRate, int bitsPerSample, WaveFormatTag wFormatTag)
         {
             _masterVoice = masterVoice ?? throw new ArgumentNullException(nameof(masterVoice));
-            _pointer = NativeWrapper.XAudio2SourceVoice_Alloc(masterVoice.Pointer, channels, sampleRate, bitsPerSample, isFloat);
+            _pointer = NativeWrapper.XAudio2SourceVoice_Alloc(masterVoice.Pointer, channels, sampleRate, bitsPerSample, wFormatTag);
             if (_pointer == IntPtr.Zero)
                 throw new ApplicationException($"Create and load {nameof(XAudio2SourceVoice)} failed (last error : {NativeWrapper.GetLastError()})");
         }

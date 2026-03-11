@@ -23,7 +23,7 @@ XAudio2SourceVoice::~XAudio2SourceVoice() {
 }
 
 
-BOOL XAudio2SourceVoice::Init(int channels, int sampleRate, int bitsPerSample, BOOL isFloat) {
+BOOL XAudio2SourceVoice::Init(int channels, int sampleRate, int bitsPerSample, WORD wFormatTag) {
 	SetLastError(0);
 	if (channels <= 0 || sampleRate <= 0 || bitsPerSample <= 0)
 		return FALSE;
@@ -34,7 +34,7 @@ BOOL XAudio2SourceVoice::Init(int channels, int sampleRate, int bitsPerSample, B
 	ZeroMemory(&sourceFormat, sizeof(WAVEFORMATEX));
 
 	sourceFormat.wBitsPerSample = (WORD)bitsPerSample;
-	sourceFormat.wFormatTag = isFloat ? WAVE_FORMAT_IEEE_FLOAT : WAVE_FORMAT_PCM;
+	sourceFormat.wFormatTag = wFormatTag;
 	sourceFormat.nChannels = (WORD)channels;
 	sourceFormat.nSamplesPerSec = (DWORD)sampleRate;
 	sourceFormat.nBlockAlign = sourceFormat.nChannels * (sourceFormat.wBitsPerSample / 8);
