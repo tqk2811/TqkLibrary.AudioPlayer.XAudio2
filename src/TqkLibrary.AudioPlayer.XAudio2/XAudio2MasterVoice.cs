@@ -19,6 +19,10 @@ namespace TqkLibrary.AudioPlayer.XAudio2
                 NativeWrapper.XAudio2MasterVoice_GetVolume(_pointer, ref volume);
                 return volume;
             }
+            set
+            {
+                NativeWrapper.XAudio2MasterVoice_SetVolume(_pointer, value);
+            }
         }
         internal XAudio2MasterVoice(XAudio2Engine engine, int nb_channels, int sample_rate, string? deviceId = null)
         {
