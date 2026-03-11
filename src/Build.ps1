@@ -2,7 +2,7 @@ Remove-Item -Recurse -Force .\x64\Release\** -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force .\x86\Release\** -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force .\TqkLibrary.AudioPlayer.XAudio2\bin\Release\** -ErrorAction SilentlyContinue
 
-$env:PATH="$($env:PATH);C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE"
+$env:PATH="$($env:PATH);C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE;C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE"
 devenv .\TqkLibrary.AudioPlayer.XAudio2.sln /Rebuild 'Release|x64' /Project TqkLibrary.AudioPlayer.XAudio2.Native
 devenv .\TqkLibrary.AudioPlayer.XAudio2.sln /Rebuild 'Release|x86' /Project TqkLibrary.AudioPlayer.XAudio2.Native
 
