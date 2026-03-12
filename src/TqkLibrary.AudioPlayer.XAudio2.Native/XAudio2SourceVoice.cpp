@@ -13,6 +13,7 @@ XAudio2SourceVoice::XAudio2SourceVoice(const XAudio2MasterVoice* masterVoice) {
 
 XAudio2SourceVoice::~XAudio2SourceVoice() {
 	if (_sourceVoice != nullptr) {
+		_sourceVoice->FlushSourceBuffers(); // trigger OnBufferEnd to free pending malloc'd buffers
 		_sourceVoice->DestroyVoice();
 		_sourceVoice = nullptr;
 	}
