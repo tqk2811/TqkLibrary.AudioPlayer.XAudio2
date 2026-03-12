@@ -3,59 +3,72 @@
 
 int XAudio2_GetAudioDeviceCount() {
 	SetLastError(0);
+	HRESULT hrCom = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	bool comInit = SUCCEEDED(hrCom);
+
+	int result = 0;
 	ComPtr<IMMDeviceEnumerator> pEnumerator;
 	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)pEnumerator.GetAddressOf());
-	if (FAILED(hr)) return 0;
+	if (SUCCEEDED(hr)) {
+		ComPtr<IMMDeviceCollection> pCollection;
+		hr = pEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, pCollection.GetAddressOf());
+		if (SUCCEEDED(hr)) {
+			UINT count = 0;
+			pCollection->GetCount(&count);
+			result = count;
+		}
+	}
 
-	ComPtr<IMMDeviceCollection> pCollection;
-	hr = pEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, pCollection.GetAddressOf());
-	if (FAILED(hr)) return 0;
-
-	UINT count = 0;
-	pCollection->GetCount(&count);
-	return count;
+	if (comInit) CoUninitialize();
+	return result;
 }
 
 BOOL XAudio2_GetAudioDeviceInfo(int index, AudioDeviceInfo* info) {
 	SetLastError(0);
 	if (!info) return FALSE;
 
+	HRESULT hrCom = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	bool comInit = SUCCEEDED(hrCom);
+
+	BOOL result = FALSE;
 	ComPtr<IMMDeviceEnumerator> pEnumerator;
 	HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)pEnumerator.GetAddressOf());
-	if (FAILED(hr)) return FALSE;
-
-	ComPtr<IMMDeviceCollection> pCollection;
-	hr = pEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, pCollection.GetAddressOf());
-	if (FAILED(hr)) return FALSE;
-
-	ComPtr<IMMDevice> pDevice;
-	hr = pCollection->Item(index, pDevice.GetAddressOf());
-	if (FAILED(hr)) return FALSE;
-
-	LPWSTR pwszID = NULL;
-	hr = pDevice->GetId(&pwszID);
-	if (FAILED(hr)) return FALSE;
-
-	wcscpy_s(info->szDeviceId, pwszID);
-	CoTaskMemFree(pwszID);
-
-	ComPtr<IPropertyStore> pProps;
-	hr = pDevice->OpenPropertyStore(STGM_READ, pProps.GetAddressOf());
 	if (SUCCEEDED(hr)) {
-		PROPVARIANT varName;
-		PropVariantInit(&varName);
-		hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
+		ComPtr<IMMDeviceCollection> pCollection;
+		hr = pEnumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, pCollection.GetAddressOf());
 		if (SUCCEEDED(hr)) {
-			wcscpy_s(info->szDeviceName, varName.pwszVal);
-			PropVariantClear(&varName);
-		} else {
-			info->szDeviceName[0] = L'\0';
+			ComPtr<IMMDevice> pDevice;
+			hr = pCollection->Item(index, pDevice.GetAddressOf());
+			if (SUCCEEDED(hr)) {
+				LPWSTR pwszID = NULL;
+				hr = pDevice->GetId(&pwszID);
+				if (SUCCEEDED(hr)) {
+					wcscpy_s(info->szDeviceId, pwszID);
+					CoTaskMemFree(pwszID);
+
+					ComPtr<IPropertyStore> pProps;
+					hr = pDevice->OpenPropertyStore(STGM_READ, pProps.GetAddressOf());
+					if (SUCCEEDED(hr)) {
+						PROPVARIANT varName;
+						PropVariantInit(&varName);
+						hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
+						if (SUCCEEDED(hr)) {
+							wcscpy_s(info->szDeviceName, varName.pwszVal);
+							PropVariantClear(&varName);
+						} else {
+							info->szDeviceName[0] = L'\0';
+						}
+					} else {
+						info->szDeviceName[0] = L'\0';
+					}
+					result = TRUE;
+				}
+			}
 		}
-	} else {
-		info->szDeviceName[0] = L'\0';
 	}
 
-	return TRUE;
+	if (comInit) CoUninitialize();
+	return result;
 }
 
 XAudio2Engine* XAudio2Engine_Alloc() {
