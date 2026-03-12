@@ -177,7 +177,7 @@ XAudio2SourceQueueResult XAudio2SourceVoice::QueueFrame(const BYTE* pData, UINT3
 		{
 			XAUDIO2_VOICE_STATE state{ 0 };
 			_sourceVoice->GetState(&state, XAUDIO2_VOICE_NOSAMPLESPLAYED);
-			if (state.BuffersQueued > 0)
+			if (state.BuffersQueued >= XAUDIO2_MAX_QUEUED_BUFFERS)
 			{
 				return XAudio2SourceQueueResult::XAudio2SourceQueue_QueueFull;
 			}
