@@ -9,6 +9,7 @@ namespace TqkLibrary.AudioPlayer.XAudio2
     public class XAudio2MasterVoice : IDisposable
     {
         readonly XAudio2Engine _engine;
+        readonly List<XAudio2SourceVoice> _sourceVoices = new List<XAudio2SourceVoice>();
         IntPtr _pointer = IntPtr.Zero;
         internal IntPtr Pointer { get { return _pointer; } }
         public float Volume
@@ -44,8 +45,27 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         {
             if (_pointer != IntPtr.Zero)
             {
+                // XAudio2 requires source voices to be destroyed before the mastering voice
+                lock (_sourceVoices)
+                {
+                    foreach (var sv in _sourceVoices)
+                        sv.Dispose();
+                    _sourceVoices.Clear();
+                }
                 NativeWrapper.XAudio2MasterVoice_Free(ref _pointer);
             }
+        }
+
+        internal void TrackSourceVoice(XAudio2SourceVoice sourceVoice)
+        {
+            lock (_sourceVoices)
+                _sourceVoices.Add(sourceVoice);
+        }
+
+        internal void UntrackSourceVoice(XAudio2SourceVoice sourceVoice)
+        {
+            lock (_sourceVoices)
+                _sourceVoices.Remove(sourceVoice);
         }
 
         public bool SetVolume(float volume)
@@ -63,7 +83,9 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         /// <returns></returns>
         public XAudio2SourceVoice CreateSourceVoice(int channels, int sampleRate, int bitsPerSample, WaveFormatTag wFormatTag)
         {
-            return new XAudio2SourceVoice(this, channels, sampleRate, bitsPerSample, wFormatTag);
+            var sv = new XAudio2SourceVoice(this, channels, sampleRate, bitsPerSample, wFormatTag);
+            TrackSourceVoice(sv);
+            return sv;
         }
     }
 }

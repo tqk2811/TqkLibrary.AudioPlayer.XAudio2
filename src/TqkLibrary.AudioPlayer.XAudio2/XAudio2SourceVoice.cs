@@ -41,7 +41,10 @@ namespace TqkLibrary.AudioPlayer.XAudio2
         void Dispose(bool isDisposing)
         {
             if (_pointer != IntPtr.Zero)
+            {
+                _masterVoice.UntrackSourceVoice(this);
                 NativeWrapper.XAudio2SourceVoice_Free(ref _pointer);
+            }
         }
 
         public bool Start()
